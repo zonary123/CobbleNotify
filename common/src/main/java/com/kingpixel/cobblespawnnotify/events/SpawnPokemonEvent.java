@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Player;
  */
 public class SpawnPokemonEvent {
   public static void registerEvents() {
-    CobblemonEvents.POKEMON_ENTITY_SPAWN.subscribe(Priority.LOW, (evt) -> {
+    CobblemonEvents.POKEMON_ENTITY_SPAWN.subscribe(Priority.NORMAL, (evt) -> {
       if (!SpawnNotify.config.isNotifyspawn()) return Unit.INSTANCE;
       try {
         PokemonEntity pokemon = evt.getEntity();

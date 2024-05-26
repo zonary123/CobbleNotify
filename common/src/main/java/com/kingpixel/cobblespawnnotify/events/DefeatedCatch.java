@@ -7,6 +7,7 @@ import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobblespawnnotify.SpawnNotify;
+import com.kingpixel.cobblespawnnotify.utils.Utils;
 import kotlin.Unit;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +31,6 @@ public class DefeatedCatch {
             .toList();
 
         Pokemon pokemon = new Pokemon();
-
         if (playerWinners.isEmpty()) return Unit.INSTANCE;
         Player player = playerWinners.get(0);
         for (BattleActor winner : evt.getWinners()) {
@@ -38,7 +38,6 @@ public class DefeatedCatch {
             player = playerBattleActor.getEntity();
             PokemonBattleActor pokemonActor = (PokemonBattleActor) winner.getSide().getOppositeSide().getActors()[0];
             pokemon = pokemonActor.getPokemon().getOriginalPokemon();
-            System.out.println("Ok player found, hope poke killed too");
             break;
           }
         }
@@ -58,6 +57,8 @@ public class DefeatedCatch {
         } else {
           return Unit.INSTANCE;
         }
+
+        Utils.broadcastMessage(s);
 
       } catch (Exception e) {
         System.err.println("Se produjo un error al procesar el evento de captura de Pokemon: " + e.getMessage());

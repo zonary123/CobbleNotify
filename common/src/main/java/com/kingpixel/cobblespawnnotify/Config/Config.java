@@ -17,6 +17,7 @@ public class Config {
   private boolean notifyspawn;
   private boolean notifycatch;
   private boolean notifydefeat;
+  private boolean notifytrades;
   private int distanceplayer;
 
   public Config() {
@@ -26,6 +27,7 @@ public class Config {
     notifyspawn = true;
     notifycatch = true;
     notifydefeat = true;
+    notifytrades = true;
     distanceplayer = 100;
   }
 
@@ -39,6 +41,10 @@ public class Config {
 
   public boolean isNotifydefeat() {
     return notifydefeat;
+  }
+
+  public boolean isNotifytrades() {
+    return notifytrades;
   }
 
   public String getLang() {
@@ -68,6 +74,7 @@ public class Config {
         notifyspawn = config.isNotifyspawn();
         notifycatch = config.isNotifycatch();
         notifydefeat = config.isNotifydefeat();
+        notifytrades = config.isNotifytrades();
         distanceplayer = config.getDistanceplayer();
         String data = gson.toJson(this);
         CompletableFuture<Boolean> futureWrite = Utils.writeFileAsync(SpawnNotify.path, "config.json",
