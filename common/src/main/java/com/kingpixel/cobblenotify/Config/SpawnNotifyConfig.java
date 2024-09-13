@@ -1,4 +1,4 @@
-package com.kingpixel.cobblespawnnotify.Config;
+package com.kingpixel.cobblenotify.Config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,7 +15,7 @@ public class SpawnNotifyConfig {
 
   public class PermissionLevels {
     // User
-    @SerializedName("command.cobblespawnnotify") public int COMMAND_COBBLEHUNT_PERMISSION_LEVEL = 0;
+    @SerializedName("command.cobblenotify") public int COMMAND_COBBLESPAWNNOTIFY_PERMISSION_LEVEL = 2;
     // Admin
 
 

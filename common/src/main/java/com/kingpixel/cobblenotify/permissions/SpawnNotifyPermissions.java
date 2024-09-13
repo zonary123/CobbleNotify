@@ -1,9 +1,9 @@
-package com.kingpixel.cobblespawnnotify.permissions;
+package com.kingpixel.cobblenotify.permissions;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.permission.CobblemonPermission;
 import com.cobblemon.mod.common.api.permission.PermissionLevel;
-import com.kingpixel.cobblespawnnotify.SpawnNotify;
+import com.kingpixel.cobblenotify.CobbleNotify;
 import net.minecraft.commands.CommandSourceStack;
 
 /**
@@ -17,15 +17,15 @@ public class SpawnNotifyPermissions {
   public final CobblemonPermission SPAWN_NOTIFY_LEGENDARY_PERMISSION;
 
   public SpawnNotifyPermissions() {
-    this.SPAWN_NOTIFY_NORMAL_PERMISSION = new CobblemonPermission("cobblespawnnotify.command.cobblespawnnotify.normal",
-      toPermLevel(SpawnNotify.dexpermission.permissionLevels.COMMAND_COBBLEHUNT_PERMISSION_LEVEL));
-    this.SPAWN_NOTIFY_SHINY_PERMISSION = new CobblemonPermission("cobblespawnnotify.command.cobblespawnnotify.shiny",
-      toPermLevel(SpawnNotify.dexpermission.permissionLevels.COMMAND_COBBLEHUNT_PERMISSION_LEVEL));
-    this.SPAWN_NOTIFY_LEGENDARY_PERMISSION = new CobblemonPermission("cobblespawnnotify.command.cobblespawnnotify" +
-      ".legendary", toPermLevel(SpawnNotify.dexpermission.permissionLevels.COMMAND_COBBLEHUNT_PERMISSION_LEVEL));
+    this.SPAWN_NOTIFY_NORMAL_PERMISSION = new CobblemonPermission("cobblenotify.command.cobblenotify.normal",
+      toPermLevel(CobbleNotify.dexpermission.permissionLevels.COMMAND_COBBLESPAWNNOTIFY_PERMISSION_LEVEL));
+    this.SPAWN_NOTIFY_SHINY_PERMISSION = new CobblemonPermission("cobblenotify.command.cobblenotify.shiny",
+      toPermLevel(CobbleNotify.dexpermission.permissionLevels.COMMAND_COBBLESPAWNNOTIFY_PERMISSION_LEVEL));
+    this.SPAWN_NOTIFY_LEGENDARY_PERMISSION = new CobblemonPermission("cobblenotify.command.cobblenotify" +
+      ".legendary", toPermLevel(CobbleNotify.dexpermission.permissionLevels.COMMAND_COBBLESPAWNNOTIFY_PERMISSION_LEVEL));
 
     // Admin
-    this.SPAWN_NOTIFY_RELOAD_PERMISSION = new CobblemonPermission("cobblespawnnotify.command.cobblespawnnotify.reload",
+    this.SPAWN_NOTIFY_RELOAD_PERMISSION = new CobblemonPermission("cobblenotify.command.cobblenotify.reload",
       PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS);
   }
 

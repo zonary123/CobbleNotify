@@ -1,10 +1,11 @@
-package com.kingpixel.cobblespawnnotify.events;
+package com.kingpixel.cobblenotify.events;
 
 import com.cobblemon.mod.common.api.Priority;
 import com.cobblemon.mod.common.api.events.CobblemonEvents;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobblespawnnotify.SpawnNotify;
-import com.kingpixel.cobblespawnnotify.utils.Utils;
+import com.kingpixel.cobblenotify.CobbleNotify;
+import com.kingpixel.cobblenotify.utils.NotifyUtils;
+import com.kingpixel.cobbleutils.util.PokemonUtils;
 import kotlin.Unit;
 import net.minecraft.world.entity.player.Player;
 
@@ -14,24 +15,25 @@ import net.minecraft.world.entity.player.Player;
 public class CatchEvent {
   public static void registerEvents() {
     CobblemonEvents.POKEMON_CAPTURED.subscribe(Priority.LOW, (evt) -> {
-      if (!SpawnNotify.config.isNotifycatch()) return Unit.INSTANCE;
+      if (!CobbleNotify.config.isNotifycatch()) return Unit.INSTANCE;
       try {
         Player player = evt.getPlayer();
         Pokemon pokemon = evt.getPokemon();
-        String s = "";
 
+        if (!pokemon.getShiny() && !pokemon.isLegendary()) return Unit.INSTANCE;
+        String message;
+        /*synchronized (SpawnPokemonEvent.pokemonsLiving) {
+          SpawnPokemonEvent.pokemonsLiving.remove(pokemon);
+        }*/
         if (pokemon.isLegendary()) {
-          s = SpawnNotify.language.getMessagecatchlegendary();
+          message = CobbleNotify.language.getMessagecatchlegendary();
         } else if (pokemon.getShiny()) {
-          s = SpawnNotify.language.getMessagecatchshiny();
+          message = CobbleNotify.language.getMessagecatchshiny();
         } else {
           return Unit.INSTANCE;
         }
 
-        s = s.replace("%player%", player.getName().getString())
-          .replace("%pokemon%", pokemon.getSpecies().getName())
-          .replace("%form%", SpawnNotify.language.getForms().getOrDefault(pokemon.getForm().getName(), pokemon.getForm().getName()));
-        Utils.broadcastMessage(s);
+        NotifyUtils.broadcast(PokemonUtils.replace(message.replace("%player%", player.getName().getString()), pokemon));
       } catch (Exception e) {
         System.err.println("Se produjo un error al procesar el evento de captura de Pokemon: " + e.getMessage());
         e.printStackTrace();

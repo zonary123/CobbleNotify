@@ -1,25 +1,26 @@
 {
   "schemaVersion": 1,
-  "id": "cobblespawnnotify",
+  "id": "cobblenotify",
   "version": "${version}",
-  "name": "CobbleSpawnNotify",
+  "name": "CobbleNotify",
   "description": "",
   "authors": [
-    "zonary123"
+    "Zonary123"
   ],
   "contact": {
-    "github": "https://github.com/zonary123/Cobblehunt"
+    "github": "https://github.com/zonary123"
   },
   "license": "MIT",
   "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.kingpixel.fabric.cobblespawnnotify.FabricModExample"
+      "com.kingpixel.fabric.cobblenotify.FabricCobbleNotify"
     ]
   },
   "depends": {
     "fabricloader": ">=0.14.22",
-    "minecraft": ">=1.20.1"
+    "minecraft": ">=1.19.2",
+    "cobblemon": ">=1.5.0"
   }
 }
