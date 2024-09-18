@@ -9,6 +9,7 @@ import com.cobblemon.mod.common.pokemon.OriginalTrainerType;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobblenotify.CobbleNotify;
 import com.kingpixel.cobblenotify.utils.NotifyUtils;
+import com.kingpixel.cobbleutils.Model.CobbleUtilsTags;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import kotlin.Unit;
 import net.minecraft.server.level.ServerPlayer;
@@ -40,6 +41,8 @@ public class DefeatedEvent {
         if (player == null) return Unit.INSTANCE;
         if (pokemon == null || pokemon.isPlayerOwned() || pokemon.getOriginalTrainerType() == OriginalTrainerType.PLAYER || pokemon.getOriginalTrainerType() == OriginalTrainerType.NPC || !pokemon.isWild())
           return Unit.INSTANCE;
+
+        if (pokemon.getPersistentData().getBoolean(CobbleUtilsTags.BOSS_TAG)) return Unit.INSTANCE;
 
         String message;
         if (pokemon.isLegendary()) {

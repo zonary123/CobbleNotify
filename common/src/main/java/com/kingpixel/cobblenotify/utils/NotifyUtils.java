@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
  */
 public class NotifyUtils {
   public static void adventure(ServerPlayer player, String message) {
+    if (player == null) return;
     player.sendSystemMessage(AdventureTranslator.toNativeWithOutPrefix(message
       .replace("%prefix%", CobbleNotify.language.getPrefix())));
   }

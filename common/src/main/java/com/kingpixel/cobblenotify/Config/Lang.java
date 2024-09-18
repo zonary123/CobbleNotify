@@ -20,6 +20,7 @@ public class Lang {
   private String reload;
   private String messagenotifyshiny;
   private String messagenotifylegendary;
+  private String messageNotifySpawnBoss;
   private String messagedefeatshiny;
   private String messagedefeatlegendary;
   private String messagecatchshiny;
@@ -37,10 +38,16 @@ public class Lang {
     reload = "%prefix%<#E39651>The plugin has been reloaded!";
     messagenotifyshiny = "%prefix%<#86E19F>A wild %pokemon% %gender% %shiny% &f(&b%form%&f) <#86E19F>has spawned in a" +
       " biome: &b%biome% <#86E19F>world: &b%world% <#86E19F>x:<#5DD4C5>%x% <#86E19F>y:<#5DD4C5>%y% <#86E19F>z:<#5DD4C5>%z%";
-    messagenotifylegendary = "%prefix%<#86E19F>A wild <#9F66E7>legendary <#EAA34F>%pokemon% %gender% %shiny% &f(&b%form%&f) <#86E19F>has spawned in a " +
+    messagenotifylegendary = "%prefix%<#86E19F>A wild <#9F66E7>legendary <#EAA34F>%pokemon% %gender% %shiny% &f" +
+      "(&b%form%&f) <#86E19F>has spawned in a " +
       "biome: &b%biome% <#86E19F>world: &b%world% <#EA814F>x:<#5DD4C5>%x% <#EA814F>y:<#5DD4C5>%y% <#EA814F>z:<#5DD4C5>%z%";
     messagedefeatshiny = "%prefix%<#86E19F>The <#E6E83B>shiny <#EAA34F>%pokemon% %gender% %shiny% &f(&b%form%&f) <#86E19F>has been defeated by " +
       "&e%player%";
+    messageNotifySpawnBoss = "%prefix%<#86E19F>A wild <#9F66E7>Boss <#EAA34F>%pokemon% %gender% %shiny% &f" +
+      "(&b%form%&f)" +
+      " <#86E19F>has spawned in a " +
+      "biome: &b%biome% <#86E19F>world: &b%world% <#EA814F>x:<#5DD4C5>%x% <#EA814F>y:<#5DD4C5>%y% " +
+      "<#EA814F>z:<#5DD4C5>%z% %rarity%";
     messagedefeatlegendary = "%prefix%<#86E19F>The <#9F66E7>legendary <#EAA34F>%pokemon% %gender% %shiny% &f(&b%form%&f) <#86E19F>has " +
       "been defeated by &e%player%";
     messagecatchshiny = "%prefix%<#86E19F>%player% has caught a <#E6E83B>shiny <#EAA34F>%pokemon% %gender% %shiny% &f(&b%form%&f)";

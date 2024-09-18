@@ -30,6 +30,8 @@ public class Config {
   private boolean notifytrades;
   private int distanceplayer;
   private int delaycheckdespawn;
+  private List<String> labelsandforms;
+  private List<String> blacklistedPokemon;
   private List<PokemonData> specialPokemon;
 
   public Config() {
@@ -45,6 +47,9 @@ public class Config {
     notifytrades = true;
     distanceplayer = 100;
     delaycheckdespawn = 5;
+    labelsandforms = List.of("shiny", "legendary", "paradox");
+    blacklistedPokemon = List.of(
+      "magikarp");
     specialPokemon = List.of(
       new PokemonData("eevee", "eerie")
     );
@@ -69,6 +74,8 @@ public class Config {
         distanceplayer = config.getDistanceplayer();
         delaycheckdespawn = config.getDelaycheckdespawn();
         specialPokemon = config.getSpecialPokemon();
+        labelsandforms = config.getLabelsandforms();
+        blacklistedPokemon = config.getBlacklistedPokemon();
         String data = gson.toJson(this);
         CompletableFuture<Boolean> futureWrite = Utils.writeFileAsync(CobbleNotify.PATH, "config.json",
           data);

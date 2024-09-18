@@ -1,5 +1,6 @@
 package com.kingpixel.cobblenotify.Model;
 
+import com.cobblemon.mod.common.pokemon.Pokemon;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,7 +12,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class InfoSpawn {
-  private String pokemon;
+  private Pokemon pokemon;
   private String form;
   private String world;
   private String biome;
@@ -24,7 +25,7 @@ public class InfoSpawn {
   public InfoSpawn() {
   }
 
-  public InfoSpawn(String pokemon, String form, String world, String biome, String player, double x, double y, double z) {
+  public InfoSpawn(Pokemon pokemon, String form, String world, String biome, String player, double x, double y, double z) {
     this.pokemon = pokemon;
     this.form = form;
     this.world = world;
