@@ -22,9 +22,6 @@ public class CatchEvent {
 
         if (!pokemon.getShiny() && !pokemon.isLegendary()) return Unit.INSTANCE;
         String message;
-        /*synchronized (SpawnPokemonEvent.pokemonsLiving) {
-          SpawnPokemonEvent.pokemonsLiving.remove(pokemon);
-        }*/
         if (pokemon.isLegendary()) {
           message = CobbleNotify.language.getMessagecatchlegendary();
         } else if (pokemon.getShiny()) {

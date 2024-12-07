@@ -92,8 +92,10 @@ public class SpawnPokemonEvent {
     if (isBlacklisted(pokemon)) return;
 
     InfoSpawn info = createInfoSpawn(entity, pokemonEntity, world);
-    Player nearestPlayer = world.getNearestPlayer(entity.getX(), entity.getY(), entity.getZ(),
-      CobbleNotify.config.getDistanceplayer(), false);
+
+
+    Player nearestPlayer = world.getNearestPlayer(entity, CobbleNotify.config.getDistanceplayer());
+
     info.setPlayer(nearestPlayer != null ? nearestPlayer.getDisplayName().getString() : CobbleUtils.language.getNone());
 
     if (isPokemonSpecialOrMatching(pokemon, nearestPlayer, info)) return;
@@ -103,6 +105,7 @@ public class SpawnPokemonEvent {
         .replace("%rarity%", pokemon.getPersistentData().getString(CobbleUtilsTags.BOSS_RARITY_TAG)), pokemon);
       return;
     }
+
     if (shouldNotify(pokemon, nearestPlayer, info, CobbleNotify.config.isLegendary(), pokemon.isLegendary())) return;
     shouldNotify(pokemon, nearestPlayer, info, CobbleNotify.config.isShiny(), pokemon.getShiny());
   }
@@ -154,8 +157,9 @@ public class SpawnPokemonEvent {
 
   private static void notifySpawn(Player nearestPlayer, InfoSpawn info, String messageKey, Pokemon pokemon) {
     String message = notifyString(messageKey, info, pokemon);
-
-    if (CobbleNotify.config.isNotifyspawnnearplayer() && nearestPlayer != null) {
+    if (pokemon.isLegendary() || pokemon.getForm().getLabels().contains("mythical")) {
+      NotifyUtils.broadcast(message);
+    } else if (CobbleNotify.config.isNotifyspawnnearplayer() && nearestPlayer != null) {
       NotifyUtils.adventure((ServerPlayer) nearestPlayer, message);
     } else {
       NotifyUtils.broadcast(message);

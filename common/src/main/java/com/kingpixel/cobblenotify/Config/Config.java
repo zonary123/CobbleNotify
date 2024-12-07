@@ -45,7 +45,7 @@ public class Config {
     notifycatch = true;
     notifydefeat = true;
     notifytrades = true;
-    distanceplayer = 100;
+    distanceplayer = 360;
     delaycheckdespawn = 5;
     labelsandforms = List.of("shiny", "legendary", "paradox");
     blacklistedPokemon = List.of(
