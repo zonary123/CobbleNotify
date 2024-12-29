@@ -4,6 +4,7 @@ import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.google.gson.Gson;
 import com.kingpixel.cobblenotify.CobbleNotify;
 import com.kingpixel.cobbleutils.Model.PokemonData;
+import com.kingpixel.cobbleutils.Model.Sound;
 import com.kingpixel.cobbleutils.util.Utils;
 import lombok.Getter;
 import lombok.ToString;
@@ -30,6 +31,7 @@ public class Config {
   private boolean notifytrades;
   private int distanceplayer;
   private int delaycheckdespawn;
+  private Sound shinySound;
   private List<String> labelsandforms;
   private List<String> blacklistedPokemon;
   private List<PokemonData> specialPokemon;
@@ -47,6 +49,7 @@ public class Config {
     notifytrades = true;
     distanceplayer = 360;
     delaycheckdespawn = 5;
+    shinySound = new Sound();
     labelsandforms = List.of("shiny", "legendary", "paradox");
     blacklistedPokemon = List.of(
       "magikarp");

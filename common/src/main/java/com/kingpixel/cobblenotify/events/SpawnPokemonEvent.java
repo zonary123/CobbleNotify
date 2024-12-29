@@ -150,6 +150,9 @@ public class SpawnPokemonEvent {
     if (configCondition && pokemonCondition) {
       String messageKey = pokemon.isLegendary() ? CobbleNotify.language.getMessagenotifylegendary() : CobbleNotify.language.getMessagenotifyshiny();
       notifySpawn(nearestPlayer, info, messageKey, pokemon);
+      if (pokemon.getShiny()) {
+        CobbleNotify.config.getShinySound().start(pokemon.getEntity());
+      }
       return true;
     }
     return false;
