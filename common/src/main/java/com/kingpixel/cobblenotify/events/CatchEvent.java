@@ -2,12 +2,10 @@ package com.kingpixel.cobblenotify.events;
 
 import com.cobblemon.mod.common.api.Priority;
 import com.cobblemon.mod.common.api.events.CobblemonEvents;
-import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobblenotify.CobbleNotify;
-import com.kingpixel.cobblenotify.utils.NotifyUtils;
-import com.kingpixel.cobbleutils.util.PokemonUtils;
+import com.kingpixel.cobblenotify.Model.Notification;
 import kotlin.Unit;
-import net.minecraft.world.entity.player.Player;
+
+import java.util.List;
 
 /**
  * @author Carlos Varas Alonso - 25/05/2024 21:48
@@ -15,27 +13,8 @@ import net.minecraft.world.entity.player.Player;
 public class CatchEvent {
   public static void registerEvents() {
     CobblemonEvents.POKEMON_CAPTURED.subscribe(Priority.LOW, (evt) -> {
-      if (!CobbleNotify.config.isNotifycatch()) return Unit.INSTANCE;
-      try {
-        Player player = evt.getPlayer();
-        Pokemon pokemon = evt.getPokemon();
-
-        if (!pokemon.getShiny() && !pokemon.isLegendary()) return Unit.INSTANCE;
-        String message;
-        if (pokemon.isLegendary()) {
-          message = CobbleNotify.language.getMessagecatchlegendary();
-        } else if (pokemon.getShiny()) {
-          message = CobbleNotify.language.getMessagecatchshiny();
-        } else {
-          return Unit.INSTANCE;
-        }
-
-        NotifyUtils.broadcast(PokemonUtils.replace(message.replace("%player%", player.getName().getString()), pokemon));
-      } catch (Exception e) {
-        System.err.println("Se produjo un error al procesar el evento de captura de Pokemon: " + e.getMessage());
-        e.printStackTrace();
-      }
-
+      Notification.handleEvent(List.of(evt.getPokemon()), List.of(evt.getPlayer()), Notification.EventType.CATCH,
+        null);
       return Unit.INSTANCE;
     });
   }

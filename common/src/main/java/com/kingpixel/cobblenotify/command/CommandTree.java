@@ -1,12 +1,12 @@
 package com.kingpixel.cobblenotify.command;
 
 import com.kingpixel.cobblenotify.CobbleNotify;
-import com.kingpixel.cobblenotify.permissions.SpawnNotifyPermissions;
-import com.kingpixel.cobblenotify.utils.NotifyUtils;
+import com.kingpixel.cobbleutils.util.LuckPermsUtil;
+import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
 
 /**
  * @author Carlos Varas Alonso - 25/05/2024 19:35
@@ -15,26 +15,32 @@ public class CommandTree {
   private static final String literal = "cobblenotify";
 
   public static void register(
-    CommandDispatcher<CommandSourceStack> dispatcher
+    CommandDispatcher<ServerCommandSource> dispatcher
   ) {
-    LiteralArgumentBuilder<CommandSourceStack> base = Commands.literal(literal)
-      .requires(source -> SpawnNotifyPermissions.checkPermission(source, CobbleNotify.permissions.SPAWN_NOTIFY_NORMAL_PERMISSION));
+    LiteralArgumentBuilder<ServerCommandSource> base = CommandManager.literal(literal)
+      .requires(source -> LuckPermsUtil.checkPermission(source, 2, "cobblenotify.admin"));
 
-    dispatcher.register(base.then(Commands.literal("reload")
-      .requires(source -> SpawnNotifyPermissions.checkPermission(source, CobbleNotify.permissions.SPAWN_NOTIFY_RELOAD_PERMISSION))
-      .executes(context -> {
-        CobbleNotify.load();
-        if (!context.getSource().isPlayer()) {
-          CobbleNotify.LOGGER.info(CobbleNotify.language.getReload().replace(
-            "%prefix%", CobbleNotify.language.getPrefix()));
-          return 1;
-        } else {
-          NotifyUtils.adventure(context.getSource().getPlayerOrException(),
-            CobbleNotify.language.getReload().replace(
-              "%prefix%", CobbleNotify.language.getPrefix()));
-          return 1;
-        }
-      })));
+    dispatcher
+      .register(base
+        .then(CommandManager.literal("reload")
+          .requires(source -> LuckPermsUtil.checkPermission(source, 2, "cobblenotify.admin"))
+          .executes(context -> {
+            CobbleNotify.load();
+            if (!context.getSource().isExecutedByPlayer()) {
+              CobbleNotify.LOGGER.info(CobbleNotify.language.getReload().replace(
+                "%prefix%", CobbleNotify.language.getPrefix()));
+              return 1;
+            } else {
+              PlayerUtils.sendMessage(
+                context.getSource().getPlayerOrThrow(),
+                CobbleNotify.language.getReload(),
+                CobbleNotify.language.getPrefix()
+              );
+              return 1;
+            }
+          })
+        )
+      );
   }
 
 }

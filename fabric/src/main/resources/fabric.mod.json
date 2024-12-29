@@ -1,26 +1,24 @@
 {
   "schemaVersion": 1,
-  "id": "cobblenotify",
-  "version": "${version}",
-  "name": "CobbleNotify",
-  "description": "",
+  "name": "${mod_name}",
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "description": "${mod_description}",
   "authors": [
-    "Zonary123"
+    "${author}"
   ],
   "contact": {
-    "github": "https://github.com/zonary123"
   },
-  "license": "MIT",
-  "icon": "icon.png",
-  "environment": "*",
   "entrypoints": {
     "main": [
       "com.kingpixel.fabric.cobblenotify.FabricCobbleNotify"
     ]
   },
+  "license": "${license}",
+  "environment": "*",
   "depends": {
-    "fabricloader": ">=0.14.22",
-    "minecraft": ">=1.19.2",
-    "cobblemon": ">=1.5.0"
+    "fabricloader": "*",
+    "fabric": "*",
+    "minecraft": "1.21.1"
   }
 }

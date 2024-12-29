@@ -2,12 +2,12 @@ package com.kingpixel.cobblenotify.Config;
 
 import com.google.gson.Gson;
 import com.kingpixel.cobblenotify.CobbleNotify;
+import com.kingpixel.cobbleutils.Model.discord.WebHookStruct;
 import com.kingpixel.cobbleutils.util.Utils;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -18,53 +18,26 @@ import java.util.concurrent.CompletableFuture;
 public class Lang {
   private String prefix;
   private String reload;
-  private String messagenotifyshiny;
-  private String messagenotifylegendary;
-  private String messageNotifySpawnBoss;
-  private String messagedefeatshiny;
-  private String messagedefeatlegendary;
-  private String messagecatchshiny;
-  private String messagecatchlegendary;
-  private String messagetradenormal;
-  private String messagetradeshiny;
-  private String messagetradelegendary;
-  private String messageDeathPokemon;
-  private String messageDespawnPokemon;
-  private String messageSpecialPokemon;
-  private Map<String, String> worlds;
+  private WebHookStruct messageWebHookCatch;
+  private WebHookStruct messageWebHookDefeat;
+  private WebHookStruct messageWebHookSpawn;
+  private WebHookStruct messageWebHookTrade;
 
   public Lang() {
     prefix = "&7[<#E39651>CobbleSpawnNotify&7] <#EA814F>» ";
     reload = "%prefix%<#E39651>The plugin has been reloaded!";
-    messagenotifyshiny = "%prefix%<#86E19F>A wild %pokemon% %gender% %shiny% &f(&b%form%&f) <#86E19F>has spawned in a" +
-      " biome: &b%biome% <#86E19F>world: &b%world% <#86E19F>x:<#5DD4C5>%x% <#86E19F>y:<#5DD4C5>%y% <#86E19F>z:<#5DD4C5>%z%";
-    messagenotifylegendary = "%prefix%<#86E19F>A wild <#9F66E7>legendary <#EAA34F>%pokemon% %gender% %shiny% &f" +
-      "(&b%form%&f) <#86E19F>has spawned in a " +
-      "biome: &b%biome% <#86E19F>world: &b%world% <#EA814F>x:<#5DD4C5>%x% <#EA814F>y:<#5DD4C5>%y% <#EA814F>z:<#5DD4C5>%z%";
-    messagedefeatshiny = "%prefix%<#86E19F>The <#E6E83B>shiny <#EAA34F>%pokemon% %gender% %shiny% &f(&b%form%&f) <#86E19F>has been defeated by " +
-      "&e%player%";
-    messageNotifySpawnBoss = "%prefix%<#86E19F>A wild <#9F66E7>Boss <#EAA34F>%pokemon% %gender% %shiny% &f" +
-      "(&b%form%&f)" +
-      " <#86E19F>has spawned in a " +
-      "biome: &b%biome% <#86E19F>world: &b%world% <#EA814F>x:<#5DD4C5>%x% <#EA814F>y:<#5DD4C5>%y% " +
-      "<#EA814F>z:<#5DD4C5>%z% %rarity%";
-    messagedefeatlegendary = "%prefix%<#86E19F>The <#9F66E7>legendary <#EAA34F>%pokemon% %gender% %shiny% &f(&b%form%&f) <#86E19F>has " +
-      "been defeated by &e%player%";
-    messagecatchshiny = "%prefix%<#86E19F>%player% has caught a <#E6E83B>shiny <#EAA34F>%pokemon% %gender% %shiny% &f(&b%form%&f)";
-    messagecatchlegendary = "%prefix%<#86E19F>%player% has caught a <#9F66E7>legendary <#EAA34F>%pokemon% %gender% %shiny% &f(&b%form%&f)";
-    messagetradenormal = "%prefix%<#86E19F>%player1% has traded a <#EAA34F>%pokemon1% &f(&b%form1%&f) <#86E19F>for a " +
-      "%player2% <#EAA34F>%pokemon2% %form2%";
-    messagetradeshiny = "%prefix%<#86E19F>%player1% has traded to <#EAA34F>%pokemon1% %legendary1% %gender1% %shiny1% &f(&b%form1%&f) <#86E19F>for to %player2% <#EAA34F>%pokemon2% %legendary2% %gender2% % shiny2% %form2%";
-    messagetradelegendary = "%prefix%<#86E19F>%player1% has traded to <#EAA34F>%pokemon1% %legendary1% %gender1% %shiny1% &f(&b%form1%&f) <#86E19F>for to %player2% <#EAA34F>%pokemon2% %legendary2% %gender2% % shiny2% %form2%";
-    messageDeathPokemon = "%prefix%<#86E19F>The <#EAA34F>%pokemon% %gender% %shiny% &f(&b%form%&f) <#86E19F>has died " +
-      "by &6%entity%";
-    messageDespawnPokemon = "%prefix%<#86E19F>The <#EAA34F>%pokemon% %gender% %shiny% &f(&b%form%&f) <#86E19F>has despawned";
-    messageSpecialPokemon = "%prefix%<#86E19F>A special wild <#EAA34F>%pokemon% %gender% %shiny% &f(&b%form%&f) " +
-      "<#86E19F>has spawned in a biome: &b%biome% <#86E19F>world: &b%world% <#EA814F>x:<#5DD4C5>%x% <#EA814F>y:<#5DD4C5>%y% <#EA814F>z:<#5DD4C5>%z%";
-    worlds = new HashMap<>();
-    worlds.put("overworld", "World");
-    worlds.put("the_nether", "Hell");
-    worlds.put("the_end", "End");
+    messageWebHookCatch = new WebHookStruct();
+    messageWebHookCatch.setEmbeds(List.of(new WebHookStruct.Embed("Catch", "%pokemon% has caught by %player1%\n " +
+      "%gender% %form% %shiny% %player%\nShiny: %shiny%\n - Ivs: %ivshp% / %ivsatk% / %ivsdef% / %ivsspa% / %ivsspdef% / %ivsspeed%\n - Evs: %evshp% / %evsatk% / %evsdef% / %evsspa% / %evsspdef% / %evsspeed%\nAbility: %ability%\nNature: %nature%\nOwner: %owner%\nCountry: %country%\nBall: %ball%\nSize: %size%\nMoves: %move1% - %move2% - %move3% - %move4%\nTradeable: %tradeable%\nBreedable: %breedable%")));
+    messageWebHookDefeat = new WebHookStruct();
+    messageWebHookDefeat.setEmbeds(List.of(new WebHookStruct.Embed("Defeat", "%pokemon% has defeated by %player1%\n " +
+      "%gender% %form% %shiny% %player%\nShiny: %shiny%\n - Ivs: %ivshp% / %ivsatk% / %ivsdef% / %ivsspa% / %ivsspdef% / %ivsspeed%\n - Evs: %evshp% / %evsatk% / %evsdef% / %evsspa% / %evsspdef% / %evsspeed%\nAbility: %ability%\nNature: %nature%\nOwner: %owner%\nCountry: %country%\nBall: %ball%\nSize: %size%\nMoves: %move1% - %move2% - %move3% - %move4%\nTradeable: %tradeable%\nBreedable: %breedable%")));
+    messageWebHookSpawn = new WebHookStruct();
+    messageWebHookSpawn.setEmbeds(List.of(new WebHookStruct.Embed("Spawn", "%pokemon% has spawned in %world% %x% %y% %z% %biome%\n " +
+      "%gender% %form% %shiny% %player%\nShiny: %shiny%\n - Ivs: %ivshp% / %ivsatk% / %ivsdef% / %ivsspa% / %ivsspdef% / %ivsspeed%\n - Evs: %evshp% / %evsatk% / %evsdef% / %evsspa% / %evsspdef% / %evsspeed%\nAbility: %ability%\nNature: %nature%\nOwner: %owner%\nCountry: %country%\nBall: %ball%\nSize: %size%\nMoves: %move1% - %move2% - %move3% - %move4%\nTradeable: %tradeable%\nBreedable: %breedable%")));
+    messageWebHookTrade = new WebHookStruct();
+    messageWebHookTrade.setEmbeds(List.of(new WebHookStruct.Embed("Trade", "%pokemon% has traded by %player1%\n " +
+      "%gender% %form% %shiny% %player%\nShiny: %shiny%\n - Ivs: %ivshp% / %ivsatk% / %ivsdef% / %ivsspa% / %ivsspdef% / %ivsspeed%\n - Evs: %evshp% / %evsatk% / %evsdef% / %evsspa% / %evsspdef% / %evsspeed%\nAbility: %ability%\nNature: %nature%\nOwner: %owner%\nCountry: %country%\nBall: %ball%\nSize: %size%\nMoves: %move1% - %move2% - %move3% - %move4%\nTradeable: %tradeable%\nBreedable: %breedable%")));
   }
 
   public void init() {
@@ -74,19 +47,10 @@ public class Lang {
         Lang lang = gson.fromJson(el, Lang.class);
         prefix = lang.getPrefix();
         reload = lang.getReload();
-        messagenotifyshiny = lang.getMessagenotifyshiny();
-        messagenotifylegendary = lang.getMessagenotifylegendary();
-        messagedefeatshiny = lang.getMessagedefeatshiny();
-        messagedefeatlegendary = lang.getMessagedefeatlegendary();
-        messagecatchshiny = lang.getMessagecatchshiny();
-        messagecatchlegendary = lang.getMessagecatchlegendary();
-        messagetradenormal = lang.getMessagetradenormal();
-        messagetradeshiny = lang.getMessagetradeshiny();
-        messagetradelegendary = lang.getMessagetradelegendary();
-        messageDeathPokemon = lang.getMessageDeathPokemon();
-        messageDespawnPokemon = lang.getMessageDespawnPokemon();
-        messageSpecialPokemon = lang.getMessageSpecialPokemon();
-        worlds = lang.getWorlds();
+        messageWebHookCatch = lang.getMessageWebHookCatch();
+        messageWebHookDefeat = lang.getMessageWebHookDefeat();
+        messageWebHookSpawn = lang.getMessageWebHookSpawn();
+        messageWebHookTrade = lang.getMessageWebHookTrade();
         String data = gson.toJson(this);
         CompletableFuture<Boolean> futureWrite = Utils.writeFileAsync(CobbleNotify.PATH + "lang/", CobbleNotify.config.getLang() + ".json",
           data);

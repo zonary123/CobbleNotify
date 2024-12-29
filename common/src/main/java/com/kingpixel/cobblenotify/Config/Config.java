@@ -1,10 +1,9 @@
 package com.kingpixel.cobblenotify.Config;
 
-import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.google.gson.Gson;
 import com.kingpixel.cobblenotify.CobbleNotify;
-import com.kingpixel.cobbleutils.Model.PokemonData;
-import com.kingpixel.cobbleutils.Model.Sound;
+import com.kingpixel.cobblenotify.Model.Notification;
+import com.kingpixel.cobbleutils.Model.WebHookData;
 import com.kingpixel.cobbleutils.util.Utils;
 import lombok.Getter;
 import lombok.ToString;
@@ -21,41 +20,16 @@ import java.util.concurrent.CompletableFuture;
 public class Config {
   private boolean debug;
   private String lang;
-  private boolean commandaffected;
-  private boolean shiny;
-  private boolean legendary;
-  private boolean notifyspawn;
-  private boolean notifyspawnnearplayer;
-  private boolean notifycatch;
-  private boolean notifydefeat;
-  private boolean notifytrades;
-  private int distanceplayer;
-  private int delaycheckdespawn;
-  private Sound shinySound;
-  private List<String> labelsandforms;
-  private List<String> blacklistedPokemon;
-  private List<PokemonData> specialPokemon;
+  private WebHookData webHookData;
+  private int distance;
+  private List<Notification> notifications;
 
   public Config() {
     debug = false;
     lang = "en";
-    commandaffected = false;
-    shiny = true;
-    legendary = true;
-    notifyspawn = true;
-    notifyspawnnearplayer = true;
-    notifycatch = true;
-    notifydefeat = true;
-    notifytrades = true;
-    distanceplayer = 360;
-    delaycheckdespawn = 5;
-    shinySound = new Sound();
-    labelsandforms = List.of("shiny", "legendary", "paradox");
-    blacklistedPokemon = List.of(
-      "magikarp");
-    specialPokemon = List.of(
-      new PokemonData("eevee", "eerie")
-    );
+    webHookData = new WebHookData("", "", "");
+    distance = 100;
+    notifications = Notification.getNotifications();
   }
 
 
@@ -66,19 +40,9 @@ public class Config {
         Config config = gson.fromJson(el, Config.class);
         debug = config.isDebug();
         lang = config.getLang();
-        commandaffected = config.isCommandaffected();
-        shiny = config.isShiny();
-        legendary = config.isLegendary();
-        notifyspawn = config.isNotifyspawn();
-        notifyspawnnearplayer = config.isNotifyspawnnearplayer();
-        notifycatch = config.isNotifycatch();
-        notifydefeat = config.isNotifydefeat();
-        notifytrades = config.isNotifytrades();
-        distanceplayer = config.getDistanceplayer();
-        delaycheckdespawn = config.getDelaycheckdespawn();
-        specialPokemon = config.getSpecialPokemon();
-        labelsandforms = config.getLabelsandforms();
-        blacklistedPokemon = config.getBlacklistedPokemon();
+        webHookData = config.getWebHookData();
+        distance = config.getDistance();
+        notifications = config.getNotifications();
         String data = gson.toJson(this);
         CompletableFuture<Boolean> futureWrite = Utils.writeFileAsync(CobbleNotify.PATH, "config.json",
           data);
@@ -99,10 +63,5 @@ public class Config {
       }
     }
 
-  }
-
-  public boolean isSpecialPokemon(Pokemon pokemon) {
-    if (pokemon == null) return false;
-    return specialPokemon.contains(PokemonData.from(pokemon));
   }
 }

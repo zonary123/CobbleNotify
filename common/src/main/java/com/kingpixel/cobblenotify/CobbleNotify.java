@@ -1,14 +1,13 @@
 package com.kingpixel.cobblenotify;
 
+import club.minnced.discord.webhook.WebhookClient;
 import com.kingpixel.cobblenotify.Config.Config;
 import com.kingpixel.cobblenotify.Config.Lang;
-import com.kingpixel.cobblenotify.Config.SpawnNotifyConfig;
 import com.kingpixel.cobblenotify.command.CommandTree;
 import com.kingpixel.cobblenotify.events.CatchEvent;
 import com.kingpixel.cobblenotify.events.DefeatedEvent;
 import com.kingpixel.cobblenotify.events.SpawnPokemonEvent;
 import com.kingpixel.cobblenotify.events.TradeEvent;
-import com.kingpixel.cobblenotify.permissions.SpawnNotifyPermissions;
 import com.kingpixel.cobblenotify.utils.UtilsLogger;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
@@ -25,8 +24,7 @@ public class CobbleNotify {
   public static MinecraftServer server;
   public static Lang language = new Lang();
   public static Config config = new Config();
-  public static SpawnNotifyConfig dexpermission = new SpawnNotifyConfig();
-  public static SpawnNotifyPermissions permissions = new SpawnNotifyPermissions();
+  public static WebhookClient webhookClient = null;
 
   public static void init() {
     events();
@@ -35,6 +33,9 @@ public class CobbleNotify {
   public static void load() {
     files();
     print();
+    if (CobbleNotify.config.getWebHookData().isENABLED()) {
+      webhookClient = WebhookClient.withUrl(config.getWebHookData().getURL_WEBHOOK());
+    }
   }
 
   private static void files() {
@@ -45,7 +46,7 @@ public class CobbleNotify {
   private static void print() {
     LOGGER.info("CobbleNotify loaded");
     LOGGER.info("+--------------------------------+");
-    LOGGER.info("|  " + MOD_NAME + " v1.0.3 loaded  |");
+    LOGGER.info("|  " + MOD_NAME + " v1.0.5 loaded  |");
     LOGGER.info("| Author: zonary123");
     LOGGER.info("| Discord: zonary123");
     LOGGER.info("| Discord Server: https://discord.gg/ZK2g6uw7SD");
@@ -61,7 +62,7 @@ public class CobbleNotify {
 
     LifecycleEvent.SERVER_STARTED.register(server -> load());
 
-    LifecycleEvent.SERVER_LEVEL_LOAD.register(level -> server = level.getLevel().getServer());
+    LifecycleEvent.SERVER_LEVEL_LOAD.register(level -> server = level.getServer());
 
 
     SpawnPokemonEvent.registerEvents();
