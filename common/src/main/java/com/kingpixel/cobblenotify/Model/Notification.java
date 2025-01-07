@@ -2,6 +2,7 @@ package com.kingpixel.cobblenotify.Model;
 
 import club.minnced.discord.webhook.send.WebhookMessage;
 import com.cobblemon.mod.common.api.pokemon.labels.CobblemonPokemonLabels;
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobblenotify.CobbleNotify;
 import com.kingpixel.cobbleutils.CobbleUtils;
@@ -12,6 +13,7 @@ import com.kingpixel.cobbleutils.Model.discord.WebHookStruct;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import lombok.Getter;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.List;
@@ -46,11 +48,11 @@ public class Notification {
       "<#d88939>%pokemon1% %shiny1% <#80cd40>and " +
       "<#d88939>%pokemon2% %shiny2%!";
     this.defeated = true;
-    this.messageDefeat = "%prefix% <#d88939>%player1% <#80cd40>has defeated <#e77972>%pokemon1% %shiny1%!";
+    this.messageDefeat = "%prefix% <#d88939>%player% <#80cd40>has defeated <#e77972>%pokemon% %shiny%!";
     this.catched = true;
-    this.messageCatch = "%prefix% <#d88939>%player1% <#80cd40>has caught <#e77972>%pokemon1% %shiny1%!";
+    this.messageCatch = "%prefix% <#d88939>%player% <#80cd40>has caught <#e77972>%pokemon% %shiny%!";
     this.spawned = true;
-    this.messageSpawn = "%prefix% <#e77972>%pokemon1% %shiny1% <#80cd40>has spawned in <#e77161>%x% %y% %z% " +
+    this.messageSpawn = "%prefix% <#e77972>%pokemon% %shiny% <#80cd40>has spawned in <#e77161>%x% %y% %z% " +
       "<#72e792>%biome%!";
     this.labels = labels;
     this.persistentData = persistentData;
@@ -63,11 +65,8 @@ public class Notification {
   public static List<Notification> getNotifications() {
     return List.of(
       new Notification(
-        List.of(
-        ),
-        List.of(
-          "shiny"
-        )
+        List.of(),
+        List.of("shiny")
       ),
       new Notification(
         List.of(CobblemonPokemonLabels.LEGENDARY,
@@ -124,6 +123,13 @@ public class Notification {
       if (pokemon.isNPCOwned()) return null;
       if (eventType != EventType.CATCH) {
         if (!pokemon.isWild()) return null;
+      }
+      NbtCompound nbtCompound = pokemon.getPersistentData();
+      if (CobbleNotify.config.getBanPersistentData().stream().anyMatch(nbtCompound::contains))
+        return null;
+      PokemonEntity pokemonEntity = pokemon.getEntity();
+      if (pokemonEntity != null) {
+        if (pokemonEntity.isPersistent()) return null;
       }
     }
     boolean notify;
@@ -219,10 +225,16 @@ public class Notification {
       return message;
     }
     int size = players.size();
-    for (int i = 0; i < size; i++) {
+    if (size == 1) {
       message = message
-        .replace("%player" + (i + 1) + "%", players.get(i).getGameProfile().getName());
+        .replace("%player%", players.getFirst().getGameProfile().getName());
+    } else {
+      for (int i = 0; i < size; i++) {
+        message = message
+          .replace("%player" + (i + 1) + "%", players.get(i).getGameProfile().getName());
+      }
     }
+
     return message;
   }
 

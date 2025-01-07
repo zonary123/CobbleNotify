@@ -19,16 +19,20 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Config {
   private boolean debug;
+  private boolean affectCommands;
   private String lang;
   private WebHookData webHookData;
   private int distance;
+  private List<String> banPersistentData;
   private List<Notification> notifications;
 
   public Config() {
     debug = false;
+    affectCommands = true;
     lang = "en";
     webHookData = new WebHookData("", "", "");
     distance = 100;
+    banPersistentData = List.of("plushieowner");
     notifications = Notification.getNotifications();
   }
 
@@ -37,17 +41,12 @@ public class Config {
     CompletableFuture<Boolean> futureRead = Utils.readFileAsync(CobbleNotify.PATH, "config.json",
       el -> {
         Gson gson = Utils.newGson();
-        Config config = gson.fromJson(el, Config.class);
-        debug = config.isDebug();
-        lang = config.getLang();
-        webHookData = config.getWebHookData();
-        distance = config.getDistance();
-        notifications = config.getNotifications();
-        String data = gson.toJson(this);
+        CobbleNotify.config = gson.fromJson(el, Config.class);
+        String data = gson.toJson(CobbleNotify.config);
         CompletableFuture<Boolean> futureWrite = Utils.writeFileAsync(CobbleNotify.PATH, "config.json",
           data);
         if (!futureWrite.join()) {
-          CobbleNotify.LOGGER.fatal("Could not write lang.json file for CobbleHunt.");
+          CobbleNotify.LOGGER.fatal("Could not write config.json file for CobbleNotify.");
         }
       });
 
@@ -59,7 +58,7 @@ public class Config {
         data);
 
       if (!futureWrite.join()) {
-        CobbleNotify.LOGGER.fatal("Could not write config.json file for CobbleHunt.");
+        CobbleNotify.LOGGER.fatal("Could not write config.json file for CobbleNotify.");
       }
     }
 

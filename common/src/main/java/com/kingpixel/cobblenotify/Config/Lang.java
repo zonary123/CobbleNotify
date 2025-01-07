@@ -44,18 +44,12 @@ public class Lang {
     CompletableFuture<Boolean> futureRead = Utils.readFileAsync(CobbleNotify.PATH + "lang/", CobbleNotify.config.getLang() + ".json",
       el -> {
         Gson gson = Utils.newGson();
-        Lang lang = gson.fromJson(el, Lang.class);
-        prefix = lang.getPrefix();
-        reload = lang.getReload();
-        messageWebHookCatch = lang.getMessageWebHookCatch();
-        messageWebHookDefeat = lang.getMessageWebHookDefeat();
-        messageWebHookSpawn = lang.getMessageWebHookSpawn();
-        messageWebHookTrade = lang.getMessageWebHookTrade();
-        String data = gson.toJson(this);
+        CobbleNotify.language = gson.fromJson(el, Lang.class);
+        String data = gson.toJson(CobbleNotify.language);
         CompletableFuture<Boolean> futureWrite = Utils.writeFileAsync(CobbleNotify.PATH + "lang/", CobbleNotify.config.getLang() + ".json",
           data);
         if (!futureWrite.join()) {
-          CobbleNotify.LOGGER.fatal("Could not write lang.json file for CobbleHunt.");
+          CobbleNotify.LOGGER.fatal("Could not write lang.json file for CobbleNotify.");
         }
       });
 
@@ -67,7 +61,7 @@ public class Lang {
         data);
 
       if (!futureWrite.join()) {
-        CobbleNotify.LOGGER.fatal("Could not write lang.json file for CobbleHunt.");
+        CobbleNotify.LOGGER.fatal("Could not write lang.json file for CobbleNotify.");
       }
     }
   }

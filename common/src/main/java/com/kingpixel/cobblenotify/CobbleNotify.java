@@ -1,6 +1,12 @@
 package com.kingpixel.cobblenotify;
 
 import club.minnced.discord.webhook.WebhookClient;
+import com.cobblemon.mod.common.Cobblemon;
+import com.cobblemon.mod.common.api.pokedex.CaughtPercent;
+import com.cobblemon.mod.common.api.pokedex.PokedexManager;
+import com.cobblemon.mod.common.api.storage.player.InstancedPlayerData;
+import com.cobblemon.mod.common.client.pokedex.PokedexScannerRenderer;
+import com.cobblemon.mod.common.events.PokedexHandler;
 import com.kingpixel.cobblenotify.Config.Config;
 import com.kingpixel.cobblenotify.Config.Lang;
 import com.kingpixel.cobblenotify.command.CommandTree;
@@ -11,6 +17,7 @@ import com.kingpixel.cobblenotify.events.TradeEvent;
 import com.kingpixel.cobblenotify.utils.UtilsLogger;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.event.events.common.PlayerEvent;
 import net.minecraft.server.MinecraftServer;
 
 /**
@@ -63,7 +70,6 @@ public class CobbleNotify {
     LifecycleEvent.SERVER_STARTED.register(server -> load());
 
     LifecycleEvent.SERVER_LEVEL_LOAD.register(level -> server = level.getServer());
-
 
     SpawnPokemonEvent.registerEvents();
     CatchEvent.registerEvents();
