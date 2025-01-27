@@ -27,6 +27,8 @@ forge*changelog.txt
 /logs/
 .vscode/launch.json
 .vscode
+actual_versions
+/actual_versions/
 
 # Generated files
 */generated/resources/*

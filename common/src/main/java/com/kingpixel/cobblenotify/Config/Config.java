@@ -23,6 +23,7 @@ public class Config {
   private String lang;
   private WebHookData webHookData;
   private int distance;
+  private List<String> blackListPokemons;
   private List<String> banPersistentData;
   private List<Notification> notifications;
 
@@ -32,7 +33,8 @@ public class Config {
     lang = "en";
     webHookData = new WebHookData("", "", "");
     distance = 100;
-    banPersistentData = List.of("plushieowner");
+    blackListPokemons = List.of("phione");
+    banPersistentData = List.of("plushieowner", "fakeRaid");
     notifications = Notification.getNotifications();
   }
 

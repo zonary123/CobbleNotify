@@ -121,6 +121,7 @@ public class Notification {
         if (pokemon.isPlayerOwned()) return null;
       }
       if (pokemon.isNPCOwned()) return null;
+
       if (eventType != EventType.CATCH) {
         if (!pokemon.isWild()) return null;
       }
@@ -143,6 +144,10 @@ public class Notification {
   public static Notification handleEvent(List<Pokemon> pokemons, List<ServerPlayerEntity> players, EventType eventType,
                                          InfoSpawn info) {
     try {
+      if (pokemons == null || pokemons.isEmpty()) return null;
+      for (Pokemon pokemon : pokemons)
+        if (CobbleNotify.config.getBlackListPokemons().contains(pokemon.showdownId())) return null;
+
       Notification notification = searchNotification(CobbleNotify.config.getNotifications(), pokemons, eventType);
       String message;
       WebHookStruct webHookStruct = null;
@@ -159,6 +164,7 @@ public class Notification {
             break;
           case DEFEAT:
             if (!notification.isDefeated()) return null;
+            if (players == null || players.isEmpty()) return null;
             int size = players.size();
             if (size == 1) {
               PlayerUtils.sendMessage(
@@ -201,9 +207,17 @@ public class Notification {
             break;
         }
         if (notification.isWebHook() && CobbleNotify.config.getWebHookData().isENABLED()) {
+          if (players == null) return notification;
+          if (players.isEmpty()) return notification;
+          if (pokemons == null) return notification;
+          if (pokemons.isEmpty()) return notification;
+          for (Pokemon pokemon : pokemons) {
+            if (pokemon == null) return notification;
+          }
+          ServerPlayerEntity player = players.getFirst();
           WebhookMessage webhookMessage = webHookStruct.getMessage(
             CobbleNotify.config.getWebHookData(),
-            players.getFirst(),
+            player,
             pokemons
           );
           CobbleNotify.webhookClient.send(webhookMessage);

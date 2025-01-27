@@ -1,0 +1,138 @@
+plugins {
+    id "architectury-plugin" version "3.4-SNAPSHOT"
+    id "dev.architectury.loom" version "1.9-SNAPSHOT" apply false
+    id 'com.palantir.git-version' version '3.0.0'
+}
+
+def git = versionDetails()
+def tag = git.lastTag.substring(0)
+if (System.getenv("GITHUB_ACTIONS") == "true") {
+    if (System.getenv("GITHUB_WORKFLOW") == "Release") {
+        version = tag
+    } else if (System.getenv("PULL_REQUEST")) {
+        version = "${tag}${tag.contains("-") ? "." : "-"}.pr.${System.getenv("PULL_REQUEST")}.${System.getenv("GITHUB_RUN_NUMBER")}"
+    } else {
+        version = "${tag}${tag.contains("-") ? "." : "-"}.${System.getenv("GITHUB_RUN_NUMBER")}"
+    }
+} else {
+    version = "${tag}${tag.contains("-") ? "." : ""}"
+}
+
+architectury {
+    minecraft = rootProject.minecraft_version
+}
+
+subprojects {
+    apply plugin: "dev.architectury.loom"
+    version = "${rootProject.version}"
+
+    loom {
+        silentMojangMappingsLicense()
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+        mappings loom.layered {
+            it.mappings("net.fabricmc:yarn:${rootProject.yarn_mappings}:v2")
+            it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$rootProject.yarn_mappings_patch_neoforge_version")
+        }
+    }
+}
+
+allprojects {
+    apply plugin: "java"
+    apply plugin: "architectury-plugin"
+    apply plugin: "maven-publish"
+
+    archivesBaseName = "${rootProject.minecraft_version}/${rootProject.mod_version}/${tag}/${rootProject.archives_base_name}-${rootProject.minecraft_version}-${project.name}-${rootProject.mod_version}"
+
+    group = rootProject.maven_group
+
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url "https://jitpack.io" }
+        maven { url "https://cursemaven.com" }
+        maven { url "https://maven.fabricmc.net/" }
+        maven { url "https://maven.architectury.dev/" }
+        maven { url "https://repo.maven.apache.org/maven2/" }
+        maven { url "https://repo.spongepowered.org/maven/" }
+        maven { url "https://repo.essentialsx.net/releases/" }
+        maven { url "https://maven.neoforged.net/releases/" }
+        maven { url "https://files.minecraftforge.net/maven/" }
+        maven { url "https://thedarkcolour.github.io/KotlinForForge/" }
+        maven { url "https://papermc.io/repo/repository/maven-public/" }
+        maven { url "https://maven.impactdev.net/repository/development/" }
+        maven { url "https://maven.impactdev.net/raepository/development" }
+        maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
+        maven { url "https://repo.extendedclip.com/content/repositories/placeholderapi/" }
+        maven {
+            url "https://maven.nucleoid.xyz/"
+            name = "Nucleoid"
+        }
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots"
+            name = "Sonatype Snapshots"
+        }
+        maven {
+            url "https://s01.oss.sonatype.org/content/repositories/snapshots"
+            name = "Sonatype 01 Snapshots"
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = "UTF-8"
+        // Minecraft 1.20.5 now requires Java 21 to run.
+        // ref: https://fabricmc.net/2024/04/19/1205.html
+        options.release = 21
+    }
+
+
+    java {
+        withSourcesJar()
+    }
+
+    // Task to write the version to a file
+    task writeVersionFile {
+        doLast {
+            def versionFile = file("${buildDir}/version.txt")
+            versionFile.text = "Version: ${version}"
+        }
+    }
+
+    // Ensure the version file is written after the build
+    build.finalizedBy(writeVersionFile)
+
+
+    boolean isDelete = false
+
+    task cleanAndCopyJarToActualVersions(type: Copy) {
+        dependsOn jar
+        if (!isDelete) {
+            delete fileTree(dir: "${rootProject.projectDir}/actual_versions", include: "**/*")
+            isDelete = true
+        }
+        // Define la variable 'path' correctamente, como la ruta del directorio build
+        def path = buildDir.absolutePath
+
+        // Verifica si el nombre del proyecto es "build", si es así, omite la copia
+        if (!path.contains("${rootProject.name}\\build") && !path.contains("common")) {
+            println("Copying jar to actual_versions -> ${rootProject.projectDir}\\actual_versions")
+            println("Jar file -> ${path}\\libs\\${archivesBaseName}-${tag}.jar")
+
+            // Verifica si el archivo .jar existe antes de copiar
+            def jarFile = file("${path}\\libs\\${archivesBaseName}-${tag}.jar")
+            if (jarFile.exists()) {
+                from(jarFile)
+                into("${rootProject.projectDir}\\actual_versions")
+            } else {
+                //throw new GradleException("El archivo .jar no se encuentra en la ruta esperada: ${jarFile}")
+            }
+        } else {
+            println("Skipping cleanAndCopyJarToActualVersions task because the project name is 'build'")
+        }
+    }
+    build.finalizedBy(cleanAndCopyJarToActualVersions)
+
+
+}
