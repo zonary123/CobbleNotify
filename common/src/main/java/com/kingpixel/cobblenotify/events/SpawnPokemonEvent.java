@@ -72,7 +72,7 @@ public class SpawnPokemonEvent {
     }
 
     try {
-      world = "<lang:world." + pokemonEntity.getWorld().getRegistryKey().getRegistry().toShortTranslationKey() + ">";
+      world = pokemonEntity.getEntityWorld().getRegistryKey().getValue() + "";
     } catch (Exception ignored) {
       world = "Unknown";
     }

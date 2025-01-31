@@ -18,24 +18,29 @@ import java.util.List;
  */
 public class DefeatedEvent {
   public static void registerEvents() {
-    CobblemonEvents.BATTLE_VICTORY.subscribe(Priority.LOW, (evt) -> {
+    CobblemonEvents.BATTLE_VICTORY.subscribe(Priority.HIGH, (evt) -> {
+      try {
+        List<ServerPlayerEntity> players = new ArrayList<>();
+        List<Pokemon> pokemons = new ArrayList<>();
 
-      List<ServerPlayerEntity> players = new ArrayList<>();
-      List<Pokemon> pokemons = new ArrayList<>();
-
-      for (BattleActor winner : evt.getWinners()) {
-        if (winner instanceof PlayerBattleActor playerBattleActor) {
-          players.add(playerBattleActor.getEntity());
+        for (BattleActor winner : evt.getWinners()) {
+          if (winner instanceof PlayerBattleActor playerBattleActor) {
+            players.add(playerBattleActor.getEntity());
+          }
         }
-      }
 
-      for (BattleActor loser : evt.getLosers()) {
-        if (loser instanceof PokemonBattleActor pokemonBattleActor) {
-          pokemons.add(pokemonBattleActor.getPokemon().getOriginalPokemon());
+        for (BattleActor loser : evt.getLosers()) {
+          if (loser instanceof PokemonBattleActor pokemonBattleActor) {
+            pokemons.add(pokemonBattleActor.getPokemon().getOriginalPokemon());
+          }
         }
-      }
 
-      Notification.handleEvent(pokemons, players, Notification.EventType.DEFEAT, null);
+        Notification.handleEvent(pokemons, players, Notification.EventType.DEFEAT, null);
+        return Unit.INSTANCE;
+      } catch (Exception e) {
+        e.printStackTrace();
+
+      }
       return Unit.INSTANCE;
     });
   }
