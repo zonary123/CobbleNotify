@@ -24,6 +24,10 @@ import java.util.List;
 @Getter
 public class Notification {
   private boolean WebHook;
+  private boolean WebHookSpawn;
+  private boolean WebHookCatch;
+  private boolean WebHookTrade;
+  private boolean WebHookDefeat;
   private boolean notifyNearby;
   private boolean traded;
   private String messageTrade;
@@ -42,18 +46,22 @@ public class Notification {
 
   public Notification(List<String> labels, List<String> persistentData) {
     this.WebHook = false;
+    this.WebHookSpawn = true;
+    this.WebHookCatch = true;
+    this.WebHookTrade = true;
+    this.WebHookDefeat = true;
     this.notifyNearby = true;
     this.traded = true;
     this.messageTrade = "%prefix% <#d88939>%player1%  <#80cd40>and <#d88939>%player2% <#80cd40>have traded " +
-      "<#d88939>%pokemon1% %shiny1% <#80cd40>and " +
-      "<#d88939>%pokemon2% %shiny2%!";
+            "<#d88939>%pokemon1% %shiny1% <#80cd40>and " +
+            "<#d88939>%pokemon2% %shiny2%!";
     this.defeated = true;
     this.messageDefeat = "%prefix% <#d88939>%player% <#80cd40>has defeated <#e77972>%pokemon% %shiny%!";
     this.catched = true;
     this.messageCatch = "%prefix% <#d88939>%player% <#80cd40>has caught <#e77972>%pokemon% %shiny%!";
     this.spawned = true;
     this.messageSpawn = "%prefix% <#e77972>%pokemon% %shiny% <#80cd40>has spawned in <#e77161>%x% %y% %z% " +
-      "<#72e792>%biome%!";
+            "<#72e792>%biome%!";
     this.labels = labels;
     this.persistentData = persistentData;
     this.pokemons = List.of("");
@@ -64,21 +72,21 @@ public class Notification {
 
   public static List<Notification> getNotifications() {
     return List.of(
-      new Notification(
-        List.of(),
-        List.of("shiny")
-      ),
-      new Notification(
-        List.of(CobblemonPokemonLabels.LEGENDARY,
-          CobblemonPokemonLabels.MYTHICAL,
-          CobblemonPokemonLabels.ULTRA_BEAST
-        ),
-        null
-      ),
-      new Notification(
-        List.of(),
-        List.of(CobbleUtilsTags.BOSS_TAG)
-      )
+            new Notification(
+                    List.of(),
+                    List.of("shiny")
+            ),
+            new Notification(
+                    List.of(CobblemonPokemonLabels.LEGENDARY,
+                            CobblemonPokemonLabels.MYTHICAL,
+                            CobblemonPokemonLabels.ULTRA_BEAST
+                    ),
+                    null
+            ),
+            new Notification(
+                    List.of(),
+                    List.of(CobbleUtilsTags.BOSS_TAG)
+            )
     );
   }
 
@@ -99,7 +107,7 @@ public class Notification {
       }
       if (notification.getForms() != null) {
         if (notification.getForms().contains(pokemon.getForm().formOnlyShowdownId()) || notification.getForms().contains("*")
-          || pokemon.getAspects().stream().anyMatch(aspect -> notification.getForms().contains(aspect)))
+                || pokemon.getAspects().stream().anyMatch(aspect -> notification.getForms().contains(aspect)))
           return true;
       }
       if (notification.getPersistentData() != null) {
@@ -157,10 +165,12 @@ public class Notification {
             if (!notification.isTraded()) return null;
             message = replacePlayers(players, PokemonUtils.replace(notification.getMessageTrade(), pokemons));
             PlayerUtils.broadcast(
-              message,
-              CobbleNotify.language.getPrefix()
+                    message,
+                    CobbleNotify.language.getPrefix()
             );
-            webHookStruct = CobbleNotify.language.getMessageWebHookTrade();
+            if (notification.WebHookTrade) {
+              webHookStruct = CobbleNotify.language.getMessageWebHookTrade();
+            }
             break;
           case DEFEAT:
             if (!notification.isDefeated()) return null;
@@ -168,23 +178,27 @@ public class Notification {
             int size = players.size();
             if (size == 1) {
               PlayerUtils.sendMessage(
-                players.getFirst(),
-                replacePlayers(players, PokemonUtils.replace(notification.getMessageDefeat(), pokemons)),
-                CobbleNotify.language.getPrefix()
+                      players.getFirst(),
+                      replacePlayers(players, PokemonUtils.replace(notification.getMessageDefeat(), pokemons)),
+                      CobbleNotify.language.getPrefix()
               );
             }
-            webHookStruct = CobbleNotify.language.getMessageWebHookDefeat();
+            if (notification.WebHookDefeat) {
+              webHookStruct = CobbleNotify.language.getMessageWebHookDefeat();
+            }
             break;
           case CATCH:
             if (!notification.isCatched()) return null;
             CobbleUtils.server.getPlayerManager().getPlayerList().forEach(player -> {
               PlayerUtils.sendMessage(
-                player,
-                replacePlayers(players, PokemonUtils.replace(notification.getMessageCatch(), pokemons)),
-                CobbleNotify.language.getPrefix()
+                      player,
+                      replacePlayers(players, PokemonUtils.replace(notification.getMessageCatch(), pokemons)),
+                      CobbleNotify.language.getPrefix()
               );
             });
-            webHookStruct = CobbleNotify.language.getMessageWebHookCatch();
+            if (notification.WebHookCatch) {
+              webHookStruct = CobbleNotify.language.getMessageWebHookCatch();
+            }
             break;
           case SPAWN:
             if (!notification.isSpawned()) return null;
@@ -192,18 +206,20 @@ public class Notification {
             if (notification.isNotifyNearby()) {
               for (ServerPlayerEntity player : players) {
                 PlayerUtils.sendMessage(
-                  player,
-                  message,
-                  CobbleNotify.language.getPrefix()
+                        player,
+                        message,
+                        CobbleNotify.language.getPrefix()
                 );
               }
             } else {
               PlayerUtils.broadcast(
-                message,
-                CobbleNotify.language.getPrefix()
+                      message,
+                      CobbleNotify.language.getPrefix()
               );
             }
-            webHookStruct = CobbleNotify.language.getMessageWebHookSpawn();
+            if (notification.WebHookSpawn) {
+              webHookStruct = CobbleNotify.language.getMessageWebHookSpawn();
+            }
             break;
         }
         if (notification.isWebHook() && CobbleNotify.config.getWebHookData().isENABLED()) {
@@ -215,12 +231,14 @@ public class Notification {
             if (pokemon == null) return notification;
           }
           ServerPlayerEntity player = players.getFirst();
-          WebhookMessage webhookMessage = webHookStruct.getMessage(
-            CobbleNotify.config.getWebHookData(),
-            player,
-            pokemons
-          );
-          CobbleNotify.webhookClient.send(webhookMessage);
+          if (webHookStruct != null) {
+            WebhookMessage webhookMessage = webHookStruct.getMessage(
+                    CobbleNotify.config.getWebHookData(),
+                    player,
+                    pokemons
+            );
+            CobbleNotify.webhookClient.send(webhookMessage);
+          }
         }
         return notification;
       }
@@ -241,11 +259,11 @@ public class Notification {
     int size = players.size();
     if (size == 1) {
       message = message
-        .replace("%player%", players.getFirst().getGameProfile().getName());
+              .replace("%player%", players.getFirst().getGameProfile().getName());
     } else {
       for (int i = 0; i < size; i++) {
         message = message
-          .replace("%player" + (i + 1) + "%", players.get(i).getGameProfile().getName());
+                .replace("%player" + (i + 1) + "%", players.get(i).getGameProfile().getName());
       }
     }
 
@@ -255,10 +273,10 @@ public class Notification {
   private static String replaceInfo(InfoSpawn infoSpawn, String message) {
     if (infoSpawn == null) return message;
     return message
-      .replace("%biome%", infoSpawn.getBiome())
-      .replace("%world%", infoSpawn.getWorld())
-      .replace("%x%", String.valueOf(infoSpawn.getX()))
-      .replace("%y%", String.valueOf(infoSpawn.getY()))
-      .replace("%z%", String.valueOf(infoSpawn.getZ()));
+            .replace("%biome%", infoSpawn.getBiome())
+            .replace("%world%", infoSpawn.getWorld())
+            .replace("%x%", String.valueOf(infoSpawn.getX()))
+            .replace("%y%", String.valueOf(infoSpawn.getY()))
+            .replace("%z%", String.valueOf(infoSpawn.getZ()));
   }
 }
