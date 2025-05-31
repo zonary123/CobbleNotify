@@ -28,7 +28,7 @@ public class SpawnPokemonEvent {
       return EventResult.pass();
     });
 
-    CobblemonEvents.POKEMON_ENTITY_SPAWN.subscribe(Priority.LOWEST, evt -> {
+    CobblemonEvents.POKEMON_ENTITY_SPAWN.subscribe(Priority.LOW, evt -> {
       if (CobbleNotify.config.isAffectCommands()) return Unit.INSTANCE;
       handleNotification(evt.getEntity());
       return Unit.INSTANCE;
@@ -43,9 +43,10 @@ public class SpawnPokemonEvent {
         Box.from(pokemonEntity.getPos()).expand(CobbleNotify.config.getDistance()),
         player -> true
       );
+      var pokemonEntitys = List.of(pokemonEntity);
 
       Notification notification = Notification.handleEvent(List.of(pokemonEntity.getPokemon()), players,
-        Notification.EventType.SPAWN, info);
+        Notification.EventType.SPAWN, info, pokemonEntitys);
       if (notification != null) {
         notification.getSound().start(pokemonEntity);
         notification.getParticle().sendParticlesNearPlayers(pokemonEntity);

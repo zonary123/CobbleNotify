@@ -14,7 +14,7 @@ public class CatchEvent {
   public static void registerEvents() {
     CobblemonEvents.POKEMON_CAPTURED.subscribe(Priority.LOW, (evt) -> {
       Notification.handleEvent(List.of(evt.getPokemon()), List.of(evt.getPlayer()), Notification.EventType.CATCH,
-        null);
+        null, null);
       return Unit.INSTANCE;
     });
   }

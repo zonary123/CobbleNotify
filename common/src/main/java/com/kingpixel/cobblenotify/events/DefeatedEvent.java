@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class DefeatedEvent {
   public static void registerEvents() {
-    CobblemonEvents.BATTLE_VICTORY.subscribe(Priority.HIGH, (evt) -> {
+    CobblemonEvents.BATTLE_VICTORY.subscribe(Priority.LOW, (evt) -> {
       try {
         List<ServerPlayerEntity> players = new ArrayList<>();
         List<Pokemon> pokemons = new ArrayList<>();
@@ -35,7 +35,7 @@ public class DefeatedEvent {
           }
         }
 
-        Notification.handleEvent(pokemons, players, Notification.EventType.DEFEAT, null);
+        Notification.handleEvent(pokemons, players, Notification.EventType.DEFEAT, null, null);
         return Unit.INSTANCE;
       } catch (Exception e) {
         e.printStackTrace();
