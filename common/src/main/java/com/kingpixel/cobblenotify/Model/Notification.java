@@ -5,7 +5,6 @@ import com.cobblemon.mod.common.api.pokemon.labels.CobblemonPokemonLabels;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobblenotify.CobbleNotify;
-import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.CobbleUtilsTags;
 import com.kingpixel.cobbleutils.Model.Particle;
 import com.kingpixel.cobbleutils.Model.Sound;
@@ -168,9 +167,11 @@ public class Notification {
           case TRADE:
             if (!notification.isTraded()) return null;
             message = replacePlayers(players, PokemonUtils.replace(notification.getMessageTrade(), pokemons));
-            PlayerUtils.broadcast(
+            PlayerUtils.sendMessage(
+              null,
               message,
-              CobbleNotify.language.getPrefix()
+              CobbleNotify.language.getPrefix(),
+              TypeMessage.BROADCAST
             );
             if (notification.WebHookTrade) {
               webHookStruct = CobbleNotify.language.getMessageWebHookTrade();
@@ -184,7 +185,8 @@ public class Notification {
               PlayerUtils.sendMessage(
                 players.getFirst(),
                 replacePlayers(players, PokemonUtils.replace(notification.getMessageDefeat(), pokemons)),
-                CobbleNotify.language.getPrefix()
+                CobbleNotify.language.getPrefix(),
+                TypeMessage.BROADCAST
               );
             }
             if (notification.WebHookDefeat) {
@@ -193,13 +195,13 @@ public class Notification {
             break;
           case CATCH:
             if (!notification.isCatched()) return null;
-            CobbleUtils.server.getPlayerManager().getPlayerList().forEach(player -> {
-              PlayerUtils.sendMessage(
-                player,
-                replacePlayers(players, PokemonUtils.replace(notification.getMessageCatch(), pokemons)),
-                CobbleNotify.language.getPrefix()
-              );
-            });
+            String messageCatch = replacePlayers(players, PokemonUtils.replace(notification.getMessageCatch(), pokemons));
+            PlayerUtils.sendMessage(
+              null,
+              messageCatch,
+              CobbleNotify.language.getPrefix(),
+              TypeMessage.BROADCAST
+            );
             if (notification.WebHookCatch) {
               webHookStruct = CobbleNotify.language.getMessageWebHookCatch();
             }
@@ -217,10 +219,10 @@ public class Notification {
                 );
               }
             } else {
-              PlayerUtils.broadcast(
+              PlayerUtils.sendMessage(null,
                 message,
-                CobbleNotify.language.getPrefix()
-              );
+                CobbleNotify.language.getPrefix(),
+                TypeMessage.BROADCAST);
             }
             if (notification.isWebHookSpawn()) {
               webHookStruct = CobbleNotify.language.getMessageWebHookSpawn();
