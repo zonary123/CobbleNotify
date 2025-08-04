@@ -167,12 +167,7 @@ public class Notification {
           case TRADE:
             if (!notification.isTraded()) return null;
             message = replacePlayers(players, PokemonUtils.replace(notification.getMessageTrade(), pokemons));
-            PlayerUtils.sendMessage(
-              null,
-              message,
-              CobbleNotify.language.getPrefix(),
-              TypeMessage.BROADCAST
-            );
+            PlayerUtils.broadcast(message, CobbleNotify.language.getPrefix());
             if (notification.WebHookTrade) {
               webHookStruct = CobbleNotify.language.getMessageWebHookTrade();
             }
@@ -196,12 +191,7 @@ public class Notification {
           case CATCH:
             if (!notification.isCatched()) return null;
             String messageCatch = replacePlayers(players, PokemonUtils.replace(notification.getMessageCatch(), pokemons));
-            PlayerUtils.sendMessage(
-              null,
-              messageCatch,
-              CobbleNotify.language.getPrefix(),
-              TypeMessage.BROADCAST
-            );
+            PlayerUtils.broadcast(messageCatch, CobbleNotify.language.getPrefix());
             if (notification.WebHookCatch) {
               webHookStruct = CobbleNotify.language.getMessageWebHookCatch();
             }
@@ -219,10 +209,7 @@ public class Notification {
                 );
               }
             } else {
-              PlayerUtils.sendMessage(null,
-                message,
-                CobbleNotify.language.getPrefix(),
-                TypeMessage.BROADCAST);
+              PlayerUtils.broadcast(message, CobbleNotify.language.getPrefix());
             }
             if (notification.isWebHookSpawn()) {
               webHookStruct = CobbleNotify.language.getMessageWebHookSpawn();
