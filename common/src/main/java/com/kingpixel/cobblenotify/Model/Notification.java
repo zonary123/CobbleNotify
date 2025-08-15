@@ -196,12 +196,7 @@ public class Notification {
           case CATCH:
             if (!notification.isCatched()) return null;
             String messageCatch = replacePlayers(players, PokemonUtils.replace(notification.getMessageCatch(), pokemons));
-            PlayerUtils.sendMessage(
-              null,
-              messageCatch,
-              CobbleNotify.language.getPrefix(),
-              TypeMessage.BROADCAST
-            );
+            PlayerUtils.broadcast(messageCatch, CobbleNotify.language.getPrefix());
             if (notification.WebHookCatch) {
               webHookStruct = CobbleNotify.language.getMessageWebHookCatch();
             }
