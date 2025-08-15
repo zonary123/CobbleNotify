@@ -9,6 +9,7 @@ import com.kingpixel.cobblenotify.Model.Notification;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.EntityEvent;
 import kotlin.Unit;
+import me.drex.vanish.util.VanishManager;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Box;
@@ -41,8 +42,12 @@ public class SpawnPokemonEvent {
       List<ServerPlayerEntity> players = pokemonEntity.getWorld().getEntitiesByClass(
         ServerPlayerEntity.class,
         Box.from(pokemonEntity.getPos()).expand(CobbleNotify.config.getDistance()),
-        player -> true
+        player -> !player.isCreative() && !player.isSpectator()
       );
+      try {
+        players.removeIf(VanishManager::isVanished);
+      } catch (NoClassDefFoundError | Exception e) {
+      }
       var pokemonEntitys = List.of(pokemonEntity);
 
       Notification notification = Notification.handleEvent(List.of(pokemonEntity.getPokemon()), players,

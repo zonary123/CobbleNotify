@@ -18,7 +18,8 @@ dependencies {
     modImplementation("ca.landonjw.gooeylibs:fabric-api-repack:${property("gooeylibs_version")}")
 
 
-    modImplementation(files("libs/CobbleUtils-common-1.1.3.jar"))
+    modImplementation(files("libs/CobbleUtils-1.6.1-1.21.1-fabric-1.1.3-73e7cb8.jar"))
+    modImplementation(files("libs/vanish-1.5.20+1.21.1.jar"))
 
     // Lombok
     annotationProcessor("org.projectlombok:lombok:${property("lombok_version")}")

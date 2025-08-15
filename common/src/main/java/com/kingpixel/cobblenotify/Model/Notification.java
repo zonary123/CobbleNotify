@@ -211,6 +211,7 @@ public class Notification {
             message = PokemonUtils.replace(replacePlayers(players, replaceInfo(info, notification.getMessageSpawn())), pokemons);
             if (notification.isNotifyNearby()) {
               for (ServerPlayerEntity player : players) {
+                if (player == null) continue;
                 PlayerUtils.sendMessage(
                   player,
                   message,
@@ -219,10 +220,12 @@ public class Notification {
                 );
               }
             } else {
-              PlayerUtils.sendMessage(null,
+              PlayerUtils.sendMessage(
+                null,
                 message,
                 CobbleNotify.language.getPrefix(),
-                TypeMessage.BROADCAST);
+                TypeMessage.BROADCAST
+              );
             }
             if (notification.isWebHookSpawn()) {
               webHookStruct = CobbleNotify.language.getMessageWebHookSpawn();
