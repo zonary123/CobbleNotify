@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class TradeEvent {
   public static void registerEvents() {
-    CobblemonEvents.TRADE_COMPLETED.subscribe(Priority.LOW, (evt) -> {
+    CobblemonEvents.TRADE_EVENT_POST.subscribe(Priority.LOW, (evt) -> {
       try {
         var player1 = CobbleNotify.server.getPlayerManager().getPlayer(evt.getTradeParticipant1().getUuid());
         var player2 = CobbleNotify.server.getPlayerManager().getPlayer(evt.getTradeParticipant2().getUuid());
