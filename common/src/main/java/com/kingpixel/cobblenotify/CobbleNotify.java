@@ -1,23 +1,11 @@
 package com.kingpixel.cobblenotify;
 
-import club.minnced.discord.webhook.WebhookClient;
-import com.cobblemon.mod.common.Cobblemon;
-import com.cobblemon.mod.common.api.pokedex.CaughtPercent;
-import com.cobblemon.mod.common.api.pokedex.PokedexManager;
-import com.cobblemon.mod.common.api.storage.player.InstancedPlayerData;
-import com.cobblemon.mod.common.client.pokedex.PokedexScannerRenderer;
-import com.cobblemon.mod.common.events.PokedexHandler;
-import com.kingpixel.cobblenotify.Config.Config;
-import com.kingpixel.cobblenotify.Config.Lang;
 import com.kingpixel.cobblenotify.command.CommandTree;
-import com.kingpixel.cobblenotify.events.CatchEvent;
-import com.kingpixel.cobblenotify.events.DefeatedEvent;
-import com.kingpixel.cobblenotify.events.SpawnPokemonEvent;
-import com.kingpixel.cobblenotify.events.TradeEvent;
-import com.kingpixel.cobblenotify.utils.UtilsLogger;
+import com.kingpixel.cobblenotify.config.Config;
+import com.kingpixel.cobblenotify.config.Lang;
+import com.kingpixel.cobblenotify.events.Events;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
-import dev.architectury.event.events.common.PlayerEvent;
 import net.minecraft.server.MinecraftServer;
 
 /**
@@ -27,11 +15,9 @@ public class CobbleNotify {
   public static final String MOD_ID = "cobblenotify";
   public static final String MOD_NAME = "CobbleNotify";
   public static final String PATH = "/config/cobblenotify/";
-  public static final UtilsLogger LOGGER = new UtilsLogger();
   public static MinecraftServer server;
-  public static Lang language = new Lang();
-  public static Config config = new Config();
-  public static WebhookClient webhookClient = null;
+  public static Lang lang;
+  public static Config config;
 
   public static void init() {
     events();
@@ -39,28 +25,13 @@ public class CobbleNotify {
 
   public static void load() {
     files();
-    print();
-    if (CobbleNotify.config.getWebHookData().isENABLED()) {
-      webhookClient = WebhookClient.withUrl(config.getWebHookData().getURL_WEBHOOK());
-    }
   }
 
   private static void files() {
-    language.init();
     config.init();
+    lang.init();
   }
 
-  private static void print() {
-    LOGGER.info("CobbleNotify loaded");
-    LOGGER.info("+--------------------------------+");
-    LOGGER.info("|  " + MOD_NAME + " v1.0.5 loaded  |");
-    LOGGER.info("| Author: zonary123");
-    LOGGER.info("| Discord: zonary123");
-    LOGGER.info("| Discord Server: https://discord.gg/ZK2g6uw7SD");
-    LOGGER.info("| Github: zonary123");
-    LOGGER.info("| Ko-fi: https://ko-fi.com/zonary123");
-    LOGGER.info("+--------------------------------+");
-  }
 
   private static void events() {
     files();
@@ -71,10 +42,7 @@ public class CobbleNotify {
 
     LifecycleEvent.SERVER_LEVEL_LOAD.register(level -> server = level.getServer());
 
-    SpawnPokemonEvent.registerEvents();
-    CatchEvent.registerEvents();
-    TradeEvent.registerEvents();
-    DefeatedEvent.registerEvents();
+    Events.register();
   }
 
 }
