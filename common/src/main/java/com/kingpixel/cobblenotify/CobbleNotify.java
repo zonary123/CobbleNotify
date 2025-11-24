@@ -3,6 +3,7 @@ package com.kingpixel.cobblenotify;
 import com.kingpixel.cobblenotify.command.CommandTree;
 import com.kingpixel.cobblenotify.config.Config;
 import com.kingpixel.cobblenotify.config.Lang;
+import com.kingpixel.cobblenotify.config.Notifications;
 import com.kingpixel.cobblenotify.events.Events;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
@@ -16,8 +17,8 @@ public class CobbleNotify {
   public static final String MOD_NAME = "CobbleNotify";
   public static final String PATH = "/config/cobblenotify/";
   public static MinecraftServer server;
-  public static Lang lang;
-  public static Config config;
+  public static Lang lang = new Lang();
+  public static Config config = new Config();
 
   public static void init() {
     events();
@@ -30,6 +31,7 @@ public class CobbleNotify {
   private static void files() {
     config.init();
     lang.init();
+    Notifications.init();
   }
 
 

@@ -14,6 +14,6 @@ public class Events {
     CatchEvent.register();
     SpawnEvent.register();
     DefeatEvent.register();
-    
+
   }
 }
