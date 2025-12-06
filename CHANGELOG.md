@@ -5,6 +5,7 @@
 ### Features
 
 - The mod has been completely remade, making it easier to program and reducing the amount of errors.
+- More ways to send messages. Examples are in the `/cobbleutils sendMessage` command.
 
 ### Bug Fixes
 
