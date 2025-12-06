@@ -1,0 +1,16 @@
+# Changelog
+
+## [1.1.4] - 2025-12-03
+
+### Features
+
+- The mod has been completely remade, making it easier to program and reducing the amount of errors.
+
+### Bug Fixes
+
+- No specific bug fixes were listed for this version.
+
+### Optimizations
+
+- The configuration has been reorganized into separate sections to allow more customization.
+- The mod is now more optimized, providing better overall performance.

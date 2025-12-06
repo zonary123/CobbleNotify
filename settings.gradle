@@ -12,9 +12,8 @@ pluginManagement {
         maven { url "https://maven.neoforged.net/releases/" }
         maven { url "https://files.minecraftforge.net/maven/" }
         maven { url "https://thedarkcolour.github.io/KotlinForForge/" }
-        maven { url "https://papermc.io/repo/repository/maven-public/" }
+        maven { url "https://papermc.io/repository/maven-public/" }
         maven { url "https://maven.impactdev.net/repository/development/" }
-        maven { url "https://maven.impactdev.net/raepository/development" }
         maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
         maven { url "https://repo.extendedclip.com/content/repositories/placeholderapi/" }
         maven {
@@ -29,11 +28,8 @@ pluginManagement {
             url "https://s01.oss.sonatype.org/content/repositories/snapshots"
             name = "Sonatype 01 Snapshots"
         }
+        maven {
+            url = "https://repo.kyngs.xyz/gradle-plugins"
+        }
     }
 }
-
-include("common")
-include("fabric")
-include("neoforge")
-
-rootProject.name = "CobbleNotify"

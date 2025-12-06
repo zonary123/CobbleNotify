@@ -1,4 +1,17 @@
+.gradle
+run
+build
+.idea
+common/run
+forge/run
+fabric/run
+/run/
+.env
+
+/forge/.architectury-transformer/debug.log
+
 # eclipse
+.secrets
 bin
 *.launch
 .settings
@@ -6,29 +19,22 @@ bin
 .classpath
 .project
 /.architectury-transformer/
+/net.kyori
 
 # idea
 out
 *.ipr
 *.iws
 *.iml
-.idea
-
-# gradle
-build
-.gradle
-
-# other
-eclipse
-run
 
 # Files from Forge MDK
 forge*changelog.txt
+/showdown/
 /logs/
 .vscode/launch.json
 .vscode
-actual_versions
-/actual_versions/
 
 # Generated files
 */generated/resources/*
+/fabric/src/generated/resources/cobblemon-common.accesswidener
+/actual_versions/

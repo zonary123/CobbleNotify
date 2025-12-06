@@ -1,138 +1,171 @@
 plugins {
-    id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.9-SNAPSHOT" apply false
-    id 'com.palantir.git-version' version '3.0.0'
+    id 'fabric-loom' version '1.11-SNAPSHOT'
+    id 'maven-publish'
+    id "com.modrinth.minotaur" version "2.+"
 }
 
-def git = versionDetails()
-def tag = git.lastTag.substring(0)
-if (System.getenv("GITHUB_ACTIONS") == "true") {
-    if (System.getenv("GITHUB_WORKFLOW") == "Release") {
-        version = tag
-    } else if (System.getenv("PULL_REQUEST")) {
-        version = "${tag}${tag.contains("-") ? "." : "-"}.pr.${System.getenv("PULL_REQUEST")}.${System.getenv("GITHUB_RUN_NUMBER")}"
-    } else {
-        version = "${tag}${tag.contains("-") ? "." : "-"}.${System.getenv("GITHUB_RUN_NUMBER")}"
-    }
-} else {
-    version = "${tag}${tag.contains("-") ? "." : ""}"
-}
+ext.hash_id = ""
 
-architectury {
-    minecraft = rootProject.minecraft_version
-}
+// Leer isDev desde gradle.properties (default: false)
+def isDev = project.hasProperty("isDev") ? project.property("isDev").toBoolean() : false
 
-subprojects {
-    apply plugin: "dev.architectury.loom"
-    version = "${rootProject.version}"
-
-    loom {
-        silentMojangMappingsLicense()
-    }
-
-    dependencies {
-        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        mappings loom.layered {
-            it.mappings("net.fabricmc:yarn:${rootProject.yarn_mappings}:v2")
-            it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$rootProject.yarn_mappings_patch_neoforge_version")
+// Si es dev, generar hash de git, sino no hace falta
+if (isDev) {
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
         }
+        ext.hash_id = stdout.toString().trim()
+    } catch (Exception e) {
+        ext.hash_id = "dev"
     }
 }
 
-allprojects {
-    apply plugin: "java"
-    apply plugin: "architectury-plugin"
-    apply plugin: "maven-publish"
+// Configurar el nombre del archivo
+archivesBaseName = project.archives_base_name
 
-    archivesBaseName = "${rootProject.minecraft_version}/${rootProject.mod_version}/${tag}/${rootProject.archives_base_name}-${rootProject.minecraft_version}-${project.name}-${rootProject.mod_version}"
+// Version del mod (con sufijo dev si corresponde)
+version = project.mod_version + (isDev ? "-dev-${hash_id}" : "")
 
-    group = rootProject.maven_group
+group = project.maven_group
 
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-        maven { url "https://jitpack.io" }
-        maven { url "https://cursemaven.com" }
-        maven { url "https://maven.fabricmc.net/" }
-        maven { url "https://maven.architectury.dev/" }
-        maven { url "https://repo.maven.apache.org/maven2/" }
-        maven { url "https://repo.spongepowered.org/maven/" }
-        maven { url "https://repo.essentialsx.net/releases/" }
-        maven { url "https://maven.neoforged.net/releases/" }
-        maven { url "https://files.minecraftforge.net/maven/" }
-        maven { url "https://thedarkcolour.github.io/KotlinForForge/" }
-        maven { url "https://papermc.io/repo/repository/maven-public/" }
-        maven { url "https://maven.impactdev.net/repository/development/" }
-        maven { url "https://maven.impactdev.net/raepository/development" }
-        maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
-        maven { url "https://repo.extendedclip.com/content/repositories/placeholderapi/" }
-        maven {
-            url "https://maven.nucleoid.xyz/"
-            name = "Nucleoid"
-        }
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots"
-            name = "Sonatype Snapshots"
-        }
-        maven {
-            url "https://s01.oss.sonatype.org/content/repositories/snapshots"
-            name = "Sonatype 01 Snapshots"
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "cobblequests" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
         }
     }
+}
 
-    tasks.withType(JavaCompile).configureEach {
-        options.encoding = "UTF-8"
-        // Minecraft 1.20.5 now requires Java 21 to run.
-        // ref: https://fabricmc.net/2024/04/19/1205.html
-        options.release = 21
+fabricApi {
+    configureDataGeneration {
+        client = true
     }
+}
 
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+    projectId = "CobbleQuests"
+    versionNumber = project.version
+    versionType = "release"
+    uploadFile = tasks.named("remapJar").flatMap { it.archiveFile }.get().asFile
+    gameVersions = ["1.21.1"]
+    loaders = ["fabric"]
+    changelog = System.getenv("CHANGELOG") ?: "Automatic upload."
+}
 
-    java {
-        withSourcesJar()
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+    maven { url "https://jitpack.io" }
+    maven { url "https://cursemaven.com" }
+    maven { url "https://maven.fabricmc.net/" }
+    maven { url "https://maven.architectury.dev/" }
+    maven { url "https://repo.maven.apache.org/maven2/" }
+    maven { url "https://repo.spongepowered.org/maven/" }
+    maven { url "https://repo.essentialsx.net/releases/" }
+    maven { url "https://maven.neoforged.net/releases/" }
+    maven { url "https://files.minecraftforge.net/maven/" }
+    maven { url "https://thedarkcolour.github.io/KotlinForForge/" }
+    maven { url "https://papermc.io/repository/maven-public/" }
+    maven { url "https://maven.impactdev.net/repository/development/" }
+    maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
+    maven { url "https://repo.extendedclip.com/content/repositories/placeholderapi/" }
+    maven { url "https://maven.nucleoid.xyz/"; name = "Nucleoid" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots"; name = "Sonatype Snapshots" }
+    maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots"; name = "Sonatype 01 Snapshots" }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "dev.architectury:architectury-fabric:${project.architectury_version}"
+    modImplementation("com.cobblemon:fabric:${property("cobblemon_version")}")
+    api("net.objecthunter:exp4j:0.4.8")
+    modImplementation(files(fileTree(dir: 'libs', include: '*.jar')))
+    implementation("com.github.ben-manes.caffeine:caffeine:3.2.2")
+    modImplementation("ca.landonjw.gooeylibs:fabric-api-repack:${property("gooeylibs_version")}")
+
+    // Economy APIs
+    modImplementation("net.impactdev.impactor.api:economy:${property("impactor_version")}")
+    modImplementation("net.impactdev.impactor:common:${property("impactor_version")}")
+    api("org.spigotmc:spigot-api:${property("spigot_version")}")
+    api("com.github.MilkBowl:VaultAPI:${property("vault_api_version")}")
+
+    // Placeholder API
+    modImplementation("eu.pb4:placeholder-api:${property("placeholder_api_version_fabricandforge")}")
+
+    // Database
+    modImplementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("org.mongodb:mongodb-driver-sync:${property("mongodb_version")}")
+
+    // Lombok
+    annotationProcessor("org.projectlombok:lombok:${property("lombok_version")}")
+    implementation("org.projectlombok:lombok:${property("lombok_version")}")
+
+    // Votifier
+    implementation("com.github.NuVotifier.NuVotifier:nuvotifier-api:2.7.2")
+    implementation("com.github.DrexHD:NuVotifier-Fabric:1.0.0-1.20.5")
+
+    //Discord
+    api("club.minnced:discord-webhooks:${property("discord_webhooks_version")}")
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", project.minecraft_version
+    inputs.property "loader_version", project.fabric_loader_version
+    inputs.property "mod_id", project.mod_id
+    inputs.property "mod_name", project.mod_name
+    inputs.property "author", project.author
+    inputs.property "license", project.license
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version,
+                "minecraft_version": project.minecraft_version,
+                "loader_version": project.fabric_loader_version,
+                "mod_id": project.mod_id,
+                "mod_name": project.mod_name,
+                "author": project.author,
+                "license": project.license
     }
+}
 
-    // Task to write the version to a file
-    task writeVersionFile {
-        doLast {
-            def versionFile = file("${buildDir}/version.txt")
-            versionFile.text = "Version: ${version}"
+def targetJavaVersion = 21
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        it.options.release.set(targetJavaVersion)
+    }
+}
+
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}" }
+    }
+}
+
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = project.archivesBaseName
+            from components.java
         }
     }
-
-    // Ensure the version file is written after the build
-    build.finalizedBy(writeVersionFile)
-
-
-    boolean isDelete = false
-
-    task cleanAndCopyJarToActualVersions(type: Copy) {
-        dependsOn jar
-        if (!isDelete) {
-            delete fileTree(dir: "${rootProject.projectDir}/actual_versions", include: "**/*")
-            isDelete = true
-        }
-        // Define la variable 'path' correctamente, como la ruta del directorio build
-        def path = buildDir.absolutePath
-
-        // Verifica si el nombre del proyecto es "build", si es así, omite la copia
-        if (!path.contains("${rootProject.name}\\build") && !path.contains("common")) {
-            println("Copying jar to actual_versions -> ${rootProject.projectDir}\\actual_versions")
-            println("Jar file -> ${path}\\libs\\${archivesBaseName}-${tag}.jar")
-
-            // Verifica si el archivo .jar existe antes de copiar
-            def jarFile = file("${path}\\libs\\${archivesBaseName}-${tag}.jar")
-            if (jarFile.exists()) {
-                from(jarFile)
-                into("${rootProject.projectDir}\\actual_versions")
-            } else {
-                //throw new GradleException("El archivo .jar no se encuentra en la ruta esperada: ${jarFile}")
-            }
-        } else {
-            println("Skipping cleanAndCopyJarToActualVersions task because the project name is 'build'")
-        }
-    }
-    build.finalizedBy(cleanAndCopyJarToActualVersions)
-
-
 }
