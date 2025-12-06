@@ -50,7 +50,7 @@ fabricApi {
 
 modrinth {
     token = System.getenv("MODRINTH_TOKEN")
-    projectId = "CobbleQuests"
+    projectId = "CobbleNotify"
     versionNumber = project.version
     versionType = "release"
     uploadFile = tasks.named("remapJar").flatMap { it.archiveFile }.get().asFile
