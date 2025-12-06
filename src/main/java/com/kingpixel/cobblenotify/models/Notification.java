@@ -8,6 +8,7 @@ import com.kingpixel.cobblenotify.models.notification.NotificationOptions;
 import com.kingpixel.cobblenotify.models.webhook.WebHookOptions;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.PokemonBlackList;
+import com.kingpixel.cobbleutils.Model.PokemonFormula;
 import com.kingpixel.cobbleutils.util.MinecraftUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import lombok.Data;
@@ -22,12 +23,18 @@ import java.util.UUID;
 @Data
 public class Notification {
   private int priority;
+  private boolean useFormula;
+  private double minValue;
+  private PokemonFormula formula;
   private PokemonBlackList filter;
   private NotificationOptions notificationOptions;
   private WebHookOptions webHookOptions;
 
   public Notification() {
     this.priority = 0;
+    this.useFormula = false;
+    this.minValue = 2.0;
+    this.formula = new PokemonFormula();
     this.filter = new PokemonBlackList();
     this.notificationOptions = new NotificationOptions();
     this.webHookOptions = new WebHookOptions();
@@ -36,12 +43,14 @@ public class Notification {
   public void check() {
   }
 
-  public boolean isBlackListed(Pokemon pokemon) {
-    return filter.isBlackListed(pokemon);
+  public boolean isValid(Pokemon pokemon) {
+    if (useFormula) {
+      return formula.getPokemonValue(pokemon) >= minValue;
+    } else return filter.isBlackListed(pokemon);
   }
 
   public boolean computeCaught(Pokemon pokemon, ServerPlayerEntity player) {
-    if (!isBlackListed(pokemon)) return false;
+    if (!isValid(pokemon)) return false;
     boolean notified = false;
     // Send Message notification
     if (notificationOptions.isCaught()) {
@@ -62,7 +71,7 @@ public class Notification {
   }
 
   public boolean computeDefeat(Pokemon pokemon, ServerPlayerEntity player) {
-    if (!isBlackListed(pokemon)) return false;
+    if (!isValid(pokemon)) return false;
     boolean notified = false;
     // Send Message notification
     if (notificationOptions.isDefeat()) {
@@ -92,7 +101,7 @@ public class Notification {
   public boolean computeSpawn(PokemonEntity pokemonEntity) {
     Pokemon pokemon = pokemonEntity.getPokemon();
     if (!pokemon.isWild()) return false;
-    if (!isBlackListed(pokemon)) return false;
+    if (!isValid(pokemon)) return false;
     // Send Message notification
     boolean notified = false;
     if (notificationOptions.isSpawn()) {
@@ -120,7 +129,7 @@ public class Notification {
    */
   public boolean computeTrade(Pokemon pokemon1, Pokemon pokemon2, ServerPlayerEntity player1,
                               ServerPlayerEntity player2) {
-    if (!isBlackListed(pokemon1) && !isBlackListed(pokemon2)) return false;
+    if (!isValid(pokemon1) && !isValid(pokemon2)) return false;
     boolean notified = false;
     // Send Message notificationç
     if (notificationOptions.isTrade()) {
