@@ -8,6 +8,7 @@
 - More ways to send messages. Examples are in the `/cobbleutils sendMessage` command.
 - Added formula, this is more flexible than filters.
 - Added trade notifications, which can be customized in the config.
+- Added global ban option in the config. This will ban pokemons like plushies globally.
 
 ### Bug Fixes
 

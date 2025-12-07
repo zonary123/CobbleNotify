@@ -1,6 +1,7 @@
 package com.kingpixel.cobblenotify.config;
 
 import com.kingpixel.cobblenotify.CobbleNotify;
+import com.kingpixel.cobbleutils.Model.PokemonBlackList;
 import com.kingpixel.cobbleutils.Model.WebHookData;
 import com.kingpixel.cobbleutils.util.Utils;
 import lombok.Data;
@@ -14,6 +15,11 @@ public class Config {
   private boolean affectCommand = true;
   private String lang = "en_us";
   private WebHookData webHookData = new WebHookData("", "", "");
+  private PokemonBlackList globalBlackList = new PokemonBlackList();
+
+  public Config() {
+
+  }
 
   public void init() {
     var futureRead = Utils.readFileAsync(CobbleNotify.PATH, "config.json", data -> {
@@ -24,8 +30,12 @@ public class Config {
         e.printStackTrace();
       }
     });
-
     futureRead.join();
+    var blacklist = CobbleNotify.config.getGlobalBlackList();
+    blacklist.getLabels().clear();
+    blacklist.getPokemons().clear();
+    blacklist.getAspects().add("plushie");
+
     Utils.writeFileAsync(CobbleNotify.PATH, "config.json", Utils.newGson().toJson(CobbleNotify.config));
 
   }

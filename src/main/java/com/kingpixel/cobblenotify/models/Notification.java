@@ -44,6 +44,7 @@ public class Notification {
   }
 
   public boolean isValid(Pokemon pokemon) {
+    if (CobbleNotify.config.getGlobalBlackList().isBlackListed(pokemon)) return false;
     if (useFormula) {
       return formula.getPokemonValue(pokemon) >= minValue;
     } else return filter.isBlackListed(pokemon);
@@ -100,7 +101,7 @@ public class Notification {
    */
   public boolean computeSpawn(PokemonEntity pokemonEntity) {
     Pokemon pokemon = pokemonEntity.getPokemon();
-    if (!pokemon.isWild()) return false;
+    if (!pokemon.isWild() || pokemonEntity.isPersistent()) return false;
     if (!isValid(pokemon)) return false;
     // Send Message notification
     boolean notified = false;
