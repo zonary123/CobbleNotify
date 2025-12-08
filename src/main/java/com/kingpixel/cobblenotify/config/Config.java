@@ -21,14 +21,18 @@ public class Config {
   private PokemonBlackList globalBlackList = new PokemonBlackList();
 
   public Config() {
-    database = new DataBaseConfig();
-    database.setType(DataBaseType.MONGODB);
-    database.setUrl("mongodb://localhost:27017");
-    database.setDatabase("cobblenotify");
-    globalBlackList = new PokemonBlackList();
-    globalBlackList.getLabels().clear();
-    globalBlackList.getPokemons().clear();
-    globalBlackList.getAspects().add("plushie");
+    if (database == null) {
+      database = new DataBaseConfig();
+      database.setType(DataBaseType.MONGODB);
+      database.setUrl("mongodb://localhost:27017");
+      database.setDatabase("cobblenotify");
+    }
+    if (globalBlackList == null) {
+      globalBlackList = new PokemonBlackList();
+      globalBlackList.getLabels().clear();
+      globalBlackList.getPokemons().clear();
+      globalBlackList.getAspects().add("plushie");
+    }
   }
 
   public void init() {
@@ -36,7 +40,7 @@ public class Config {
       try {
         var config = Utils.newGson().fromJson(data, Config.class);
         config.check();
-        if (config != null) CobbleNotify.config = config;
+        CobbleNotify.config = config;
       } catch (Exception e) {
         e.printStackTrace();
       }
