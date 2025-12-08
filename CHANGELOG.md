@@ -14,7 +14,7 @@
 
 ### Bug Fixes
 
-- No specific bug fixes were listed for this version.
+- Fixed notifications for non-wild Pokémon on death.
 
 ### Optimizations
 

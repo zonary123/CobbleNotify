@@ -88,6 +88,7 @@ public class Notification {
   }
 
   public boolean computeDefeat(Pokemon pokemon, ServerPlayerEntity player) {
+    if (!pokemon.isWild()) return false;
     if (!isValid(pokemon)) return false;
     boolean notified = false;
     // Send Message notification
