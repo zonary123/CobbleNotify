@@ -8,13 +8,18 @@ import com.kingpixel.cobbleutils.Model.DataBaseConfig;
  */
 public class DataBaseFactory {
   public static DataBaseClient createDataBaseClient(DataBaseConfig config) {
-    DataBaseClient client = CobbleNotify.databaseClient;
-    if (client != null) client.disconnect();
-    client = switch (config.getType()) {
-      case MONGODB -> new MongoDBClient();
-      default -> null;
-    };
-    if (client != null) client.connect();
-    return client;
+    try {
+      DataBaseClient client = CobbleNotify.databaseClient;
+      if (client != null) client.disconnect();
+      client = switch (config.getType()) {
+        case MONGODB -> new MongoDBClient();
+        default -> null;
+      };
+      if (client != null) client.connect();
+      return client;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 }
