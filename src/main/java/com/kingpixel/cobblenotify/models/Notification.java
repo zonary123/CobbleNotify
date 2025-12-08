@@ -4,15 +4,21 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobblenotify.CobbleNotify;
 import com.kingpixel.cobblenotify.models.enums.Actions;
+import com.kingpixel.cobblenotify.models.history.HistorySpawn;
+import com.kingpixel.cobblenotify.models.history.HistoryTrade;
 import com.kingpixel.cobblenotify.models.notification.NotificationOptions;
 import com.kingpixel.cobblenotify.models.webhook.WebHookOptions;
 import com.kingpixel.cobbleutils.CobbleUtils;
+import com.kingpixel.cobbleutils.Model.ItemModel;
 import com.kingpixel.cobbleutils.Model.PokemonBlackList;
 import com.kingpixel.cobbleutils.Model.PokemonFormula;
 import com.kingpixel.cobbleutils.util.MinecraftUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import lombok.Data;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.TypeFilter;
+import net.minecraft.util.math.Box;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +28,9 @@ import java.util.UUID;
  */
 @Data
 public class Notification {
+  private String identifier;
   private int priority;
+  private ItemModel icon;
   private boolean useFormula;
   private double minValue;
   private PokemonFormula formula;
@@ -30,8 +38,10 @@ public class Notification {
   private NotificationOptions notificationOptions;
   private WebHookOptions webHookOptions;
 
-  public Notification() {
+  public Notification(String identifier) {
+    this.identifier = identifier;
     this.priority = 0;
+    this.icon = new ItemModel("minecraft:paper", "§e" + identifier);
     this.useFormula = false;
     this.minValue = 2.0;
     this.formula = new PokemonFormula();
@@ -68,6 +78,12 @@ public class Notification {
     }
     // Send WebHook notification
     notified |= webHookOptions.sendMessage(Actions.CAUGHT, List.of(pokemon));
+    if (CobbleNotify.databaseClient == null) return notified;
+    if (notified) CobbleNotify.runAsync(() -> {
+      var history = CobbleNotify.databaseClient.getSpawnedPokemonById(pokemon.getUuid());
+      history.caught(player);
+      CobbleNotify.databaseClient.updateHistorySpawn(history);
+    });
     return notified;
   }
 
@@ -115,6 +131,16 @@ public class Notification {
     }
     // Send WebHook notification
     notified |= webHookOptions.sendMessage(Actions.SPAWN, List.of(pokemon));
+    // Save to database
+    if (CobbleNotify.databaseClient == null) return notified;
+    if (notified) {
+      Box boundingBox = pokemonEntity.getBoundingBox().expand(64);
+      var players = pokemonEntity.getEntityWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), boundingBox,
+        p -> true);
+      CobbleNotify.runAsync(() -> CobbleNotify.databaseClient.addSpawnedPokemon(new HistorySpawn(pokemonEntity,
+        players, this)));
+
+    }
     return notified;
   }
 
@@ -145,6 +171,12 @@ public class Notification {
     }
     // Send WebHook notification
     notified |= webHookOptions.sendMessage(Actions.TRADE, List.of(pokemon1, pokemon2));
+    // Save to database
+    if (notified) {
+      if (CobbleNotify.databaseClient == null) return notified;
+      HistoryTrade historyTrade = new HistoryTrade(pokemon1, pokemon2, player1, player2, this);
+      CobbleNotify.runAsync(() -> CobbleNotify.databaseClient.addTradeHistory(historyTrade));
+    }
     return notified;
   }
 

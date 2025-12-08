@@ -41,15 +41,15 @@ public class Notifications {
       }
     } else {
       // Shiny Notification
-      var shinyNotification = new Notification();
+      var shinyNotification = new Notification("shiny");
       shinyNotification.getFilter().getAspects().add("shiny");
       writeNotificationFile(shinyNotification, "shiny_notification.json");
       // Legendary Notification
-      var legendaryNotification = new Notification();
+      var legendaryNotification = new Notification("legendary");
       legendaryNotification.getFilter().getLabels().add("legendary");
       writeNotificationFile(legendaryNotification, "legendary_notification.json");
       // Boss Notification
-      var bossNotification = new Notification();
+      var bossNotification = new Notification("boss");
       bossNotification.getFilter().getPersistentDataMap().clear();
       bossNotification.getFilter().getPersistentDataMap().put("boss", List.of("default", "common", "*"));
       writeNotificationFile(bossNotification, "boss_notification.json");

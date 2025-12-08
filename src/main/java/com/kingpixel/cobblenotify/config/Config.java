@@ -1,6 +1,8 @@
 package com.kingpixel.cobblenotify.config;
 
 import com.kingpixel.cobblenotify.CobbleNotify;
+import com.kingpixel.cobbleutils.Model.DataBaseConfig;
+import com.kingpixel.cobbleutils.Model.DataBaseType;
 import com.kingpixel.cobbleutils.Model.PokemonBlackList;
 import com.kingpixel.cobbleutils.Model.WebHookData;
 import com.kingpixel.cobbleutils.util.Utils;
@@ -14,29 +16,36 @@ public class Config {
   private boolean debug = false;
   private boolean affectCommand = true;
   private String lang = "en_us";
+  private DataBaseConfig database;
   private WebHookData webHookData = new WebHookData("", "", "");
   private PokemonBlackList globalBlackList = new PokemonBlackList();
 
   public Config() {
-
+    database = new DataBaseConfig();
+    database.setType(DataBaseType.MONGODB);
+    database.setUrl("mongodb://localhost:27017");
+    database.setDatabase("cobblenotify");
+    globalBlackList = new PokemonBlackList();
+    globalBlackList.getLabels().clear();
+    globalBlackList.getPokemons().clear();
+    globalBlackList.getAspects().add("plushie");
   }
 
   public void init() {
     var futureRead = Utils.readFileAsync(CobbleNotify.PATH, "config.json", data -> {
       try {
         var config = Utils.newGson().fromJson(data, Config.class);
+        config.check();
         if (config != null) CobbleNotify.config = config;
       } catch (Exception e) {
         e.printStackTrace();
       }
     });
     futureRead.join();
-    var blacklist = CobbleNotify.config.getGlobalBlackList();
-    blacklist.getLabels().clear();
-    blacklist.getPokemons().clear();
-    blacklist.getAspects().add("plushie");
-
     Utils.writeFileAsync(CobbleNotify.PATH, "config.json", Utils.newGson().toJson(CobbleNotify.config));
 
+  }
+
+  private void check() {
   }
 }

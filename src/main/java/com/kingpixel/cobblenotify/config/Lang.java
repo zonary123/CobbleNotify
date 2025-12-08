@@ -1,10 +1,15 @@
 package com.kingpixel.cobblenotify.config;
 
 import com.kingpixel.cobblenotify.CobbleNotify;
+import com.kingpixel.cobblenotify.gui.CaughtGui;
+import com.kingpixel.cobblenotify.gui.GlobalGui;
+import com.kingpixel.cobblenotify.gui.SpawnGui;
+import com.kingpixel.cobblenotify.gui.TradeGui;
 import com.kingpixel.cobbleutils.util.Utils;
 import lombok.Data;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * @author Carlos Varas Alonso - 23/11/2025 19:47
@@ -12,6 +17,20 @@ import java.io.File;
 @Data
 public class Lang {
   private String prefix = "&6[&bCobbleNotify&6]&r";
+  private List<String> spawnLore = List.of(
+    "%lorepokemon%",
+    "&7Spawn Time: %spawnTime%",
+    "&7Location: %location%",
+    "&7World: %world%",
+    "&7Nearby Players: %nearbyPlayers%",
+    "&7Caught: %caught%",
+    "&7Caught By: %caughtBy%",
+    "&7Caught Time: %caughtDate%"
+  );
+  private GlobalGui globalGui = new GlobalGui();
+  private SpawnGui spawnGui = new SpawnGui();
+  private CaughtGui caughtGui = new CaughtGui();
+  private TradeGui tradeGui = new TradeGui();
 
   public void init() {
     File folder = Utils.getAbsolutePath(CobbleNotify.PATH + "/lang/");
