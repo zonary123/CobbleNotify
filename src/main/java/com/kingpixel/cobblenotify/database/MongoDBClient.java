@@ -3,6 +3,7 @@ package com.kingpixel.cobblenotify.database;
 import com.kingpixel.cobblenotify.CobbleNotify;
 import com.kingpixel.cobblenotify.models.history.HistorySpawn;
 import com.kingpixel.cobblenotify.models.history.HistoryTrade;
+import com.kingpixel.cobbleutils.util.Utils;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -10,6 +11,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import org.bson.Document;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -66,10 +68,7 @@ public class MongoDBClient extends DataBaseClient {
   @Override public HistorySpawn getSpawnedPokemonById(UUID uuid) {
     var filter = Filters.eq("identifier", uuid.toString());
     var document = spawnCollection.find(filter).first();
-    if (document != null) {
-      return HistorySpawn.fromDocument(document);
-    }
-    return null;
+    return HistorySpawn.fromDocument(document);
   }
 
 

@@ -14,6 +14,8 @@ import lombok.Data;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
 import org.bson.Document;
@@ -32,6 +34,7 @@ import java.util.UUID;
 public class HistorySpawn {
   private String notificationId;
   private UUID identifier;
+  private UUID playerId;
   private Instant spawnTime;
   private String world;
   private String location;
@@ -43,6 +46,9 @@ public class HistorySpawn {
 
   public HistorySpawn(PokemonEntity entity, List<PlayerEntity> players, Notification notification) {
     this.spawnTime = Instant.now();
+    if (!players.isEmpty()) {
+      this.playerId = players.getFirst().getUuid();
+    }
     World entityWorld = entity.getWorld();
     this.world = entityWorld.getRegistryKey().getValue().toString();
     var pos = entity.getBlockPos();
@@ -69,6 +75,7 @@ public class HistorySpawn {
   }
 
   public static HistorySpawn fromDocument(Document document) {
+    if (document == null) return null;
     return Utils.newWithoutSpacingGson().fromJson(document.toJson(), HistorySpawn.class);
   }
 
@@ -83,8 +90,10 @@ public class HistorySpawn {
       .replace("%caughtDate%", caughtDate != null ? getFormatTime(caughtDate) : "-")
       .replace("%location%", location != null ? location : "-")
     );
+    ItemStack pokemonItem = pokemon == null ? Items.PAPER.getDefaultStack() : PokemonItem.from(pokemon);
+    if (pokemonItem == null) pokemonItem = Items.PAPER.getDefaultStack();
     return GooeyButton.builder()
-      .display(PokemonItem.from(pokemon))
+      .display(pokemonItem)
       .with(DataComponentTypes.CUSTOM_NAME, AdventureTranslator.toNative(
         PokemonUtils.replace(pokemon)
       ))
@@ -105,3 +114,5 @@ public class HistorySpawn {
   }
 
 }
+
+

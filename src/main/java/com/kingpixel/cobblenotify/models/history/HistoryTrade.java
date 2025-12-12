@@ -10,15 +10,19 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import org.bson.Document;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * @author Carlos Varas Alonso - 07/12/2025 21:35
  */
 @Data
 public class HistoryTrade {
+  private UUID identifier = UUID.randomUUID();
   private String notificationId;
+  private UUID trader1Id;
   private String trader1;
   private Pokemon pokemon1;
+  private UUID trader2Id;
   private String trader2;
   private Pokemon pokemon2;
   private Instant tradeTime = Instant.now();
@@ -27,8 +31,10 @@ public class HistoryTrade {
   public HistoryTrade(Pokemon poke1, Pokemon poke2, ServerPlayerEntity player1,
                       ServerPlayerEntity player2, Notification notification) {
     this.trader1 = player1.getGameProfile().getName();
+    this.trader1Id = player1.getUuid();
     this.pokemon1 = poke1;
     this.trader2 = player2.getGameProfile().getName();
+    this.trader2Id = player2.getUuid();
     this.pokemon2 = poke2;
     this.notificationId = notification.getIdentifier();
   }
