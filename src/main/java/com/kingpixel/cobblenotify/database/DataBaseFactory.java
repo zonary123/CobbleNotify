@@ -13,6 +13,7 @@ public class DataBaseFactory {
       if (client != null) client.disconnect();
       client = switch (config.getType()) {
         case MONGODB -> new MongoDBClient();
+        case JSON -> new JSONDBClient();
         default -> null;
       };
       if (client != null) client.connect();

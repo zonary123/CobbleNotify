@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-;
-
 public class JSONDBClient extends DataBaseClient {
 
   private File base;
