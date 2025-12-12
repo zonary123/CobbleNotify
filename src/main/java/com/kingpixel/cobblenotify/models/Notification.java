@@ -14,6 +14,7 @@ import com.kingpixel.cobbleutils.Model.PokemonBlackList;
 import com.kingpixel.cobbleutils.Model.PokemonFormula;
 import com.kingpixel.cobbleutils.util.MinecraftUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
+import com.mojang.authlib.GameProfile;
 import lombok.Data;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -121,12 +122,19 @@ public class Notification {
     if (!pokemon.isWild() || pokemonEntity.isPersistent()) return false;
     if (!isValid(pokemon)) return false;
     // Send Message notification
+    Box boundingBox = pokemonEntity.getBoundingBox().expand(64);
+    var players = pokemonEntity.getEntityWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), boundingBox, p -> true);
     boolean notified = false;
     if (notificationOptions.isSpawn()) {
       var messages = notificationOptions.getNotificationMessages();
       var message = messages.getSpawnMessage();
       var content = message.getRawMessage();
       content = PokemonUtils.replace(replaceVariables(pokemonEntity, content), pokemon);
+      if (!players.isEmpty()) {
+        content = content
+          .replace("%nearest%", String.join(", ", players.stream().map(PlayerEntity::getGameProfile).map(GameProfile::getName).toList()))
+          .replace("%player%", players.getFirst().getGameProfile().getName());
+      }
       message.sendMessage((UUID) null, content, CobbleNotify.lang.getPrefix(), false);
       notified = true;
     }
@@ -135,9 +143,7 @@ public class Notification {
     // Save to database
     if (CobbleNotify.databaseClient == null) return notified;
     if (notified) {
-      Box boundingBox = pokemonEntity.getBoundingBox().expand(64);
-      var players = pokemonEntity.getEntityWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), boundingBox,
-        p -> true);
+
       CobbleNotify.runAsync(() -> CobbleNotify.databaseClient.addSpawnedPokemon(new HistorySpawn(pokemonEntity,
         players, this)));
 

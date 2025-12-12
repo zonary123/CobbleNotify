@@ -9,7 +9,8 @@
 - Added formula, this is more flexible than filters.
 - Added trade notifications, which can be customized in the config.
 - Added global ban option in the config. This will ban pokemons like plushies globally.
-- Added history command to view past actions taken by the mod.ç
+- Added history command to view past actions taken by the mod.
+- Added placeHolder %player% and %nearest% in spawn notifications.
 - History supports databases: MongoDB. (JSON implemented test this before using it in production.)
 
 ### Bug Fixes
