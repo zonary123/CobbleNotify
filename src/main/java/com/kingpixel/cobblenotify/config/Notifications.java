@@ -34,6 +34,8 @@ public class Notifications {
             notification.check();
             NOTIFICATIONS.add(notification);
             Utils.writeFileAsync(f, Utils.newGson().toJson(notification));
+          } else {
+            Utils.writeFileAsync(f, Utils.newGson().toJson(new Notification(f.getName().replace(".json", ""))));
           }
         } catch (Exception e) {
           e.printStackTrace();

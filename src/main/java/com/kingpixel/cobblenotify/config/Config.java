@@ -23,7 +23,7 @@ public class Config {
   public Config() {
     if (database == null) {
       database = new DataBaseConfig();
-      database.setType(DataBaseType.MONGODB);
+      database.setType(DataBaseType.JSON);
       database.setUrl("mongodb://localhost:27017");
       database.setDatabase("cobblenotify");
     }
