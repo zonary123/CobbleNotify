@@ -11,12 +11,16 @@ import com.kingpixel.cobblenotify.models.Notification;
 public class DefeatEvent {
   public static void register() {
     CobblemonEvents.BATTLE_FAINTED.subscribe(Priority.NORMAL, evt -> {
-      var battle = evt.getBattle();
-      if (!battle.isPvW()) return;
-      var killed = evt.getKilled().getOriginalPokemon();
-      var killer = evt.getBattle().getPlayers().getFirst();
-      for (Notification notification : Notifications.NOTIFICATIONS) {
-        if (notification.computeDefeat(killed, killer)) return;
+      try {
+        var battle = evt.getBattle();
+        if (!battle.isPvW()) return;
+        var killed = evt.getKilled().getOriginalPokemon();
+        var killer = evt.getBattle().getPlayers().getFirst();
+        for (Notification notification : Notifications.NOTIFICATIONS) {
+          if (notification.computeDefeat(killed, killer)) return;
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     });
   }

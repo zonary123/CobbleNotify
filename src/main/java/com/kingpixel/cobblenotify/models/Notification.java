@@ -135,7 +135,8 @@ public class Notification {
           .replace("%nearest%", String.join(", ", players.stream().map(PlayerEntity::getGameProfile).map(GameProfile::getName).toList()))
           .replace("%player%", players.getFirst().getGameProfile().getName());
       }
-      message.sendMessage((UUID) null, content, CobbleNotify.lang.getPrefix(), false);
+      UUID playerUUID = players.isEmpty() ? null : players.getFirst().getGameProfile().getId();
+      message.sendMessage(playerUUID, content, CobbleNotify.lang.getPrefix(), false);
       notified = true;
     }
     // Send WebHook notification

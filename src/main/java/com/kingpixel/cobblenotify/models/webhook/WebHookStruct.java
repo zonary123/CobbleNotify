@@ -73,11 +73,12 @@ public class WebHookStruct {
     if (!webHookData.isENABLED()) return;
     var client = webHookData.getWebhookClient();
     String gif = com.kingpixel.cobbleutils.Model.discord.WebHookStruct.getGif(pokemon);
+    String hexColor = color.startsWith("#") ? color : "#" + color;
     var message = new WebhookMessageBuilder()
       .addEmbeds(
         new WebhookEmbedBuilder()
           .setTitle(new WebhookEmbed.EmbedTitle(title, titleUrl))
-          .setColor(Color.decode(color).getRGB() & 0xFFFFFF)
+          .setColor(Color.decode(hexColor).getRGB() & 0xFFFFFF)
           .setThumbnailUrl(gif)
           .setDescription(String.join("\n", modifiedDescription))
           .setFooter(new WebhookEmbed.EmbedFooter(footer, gif))

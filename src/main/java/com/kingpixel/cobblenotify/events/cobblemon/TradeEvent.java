@@ -16,12 +16,16 @@ import java.util.UUID;
 public class TradeEvent {
   public static void register() {
     CobblemonEvents.TRADE_EVENT_POST.subscribe(Priority.NORMAL, evt -> {
-      Pokemon pokemon1 = evt.getTradeParticipant1Pokemon();
-      Pokemon pokemon2 = evt.getTradeParticipant2Pokemon();
-      UUID player1 = evt.getTradeParticipant1().getUuid();
-      UUID player2 = evt.getTradeParticipant2().getUuid();
-      for (Notification notification : Notifications.NOTIFICATIONS) {
-        if (notification.computeTrade(pokemon1, pokemon2, getPlayerByUUID(player1), getPlayerByUUID(player2))) return;
+      try {
+        Pokemon pokemon1 = evt.getTradeParticipant1Pokemon();
+        Pokemon pokemon2 = evt.getTradeParticipant2Pokemon();
+        UUID player1 = evt.getTradeParticipant1().getUuid();
+        UUID player2 = evt.getTradeParticipant2().getUuid();
+        for (Notification notification : Notifications.NOTIFICATIONS) {
+          if (notification.computeTrade(pokemon1, pokemon2, getPlayerByUUID(player1), getPlayerByUUID(player2))) return;
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     });
   }

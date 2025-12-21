@@ -13,10 +13,14 @@ import net.minecraft.server.network.ServerPlayerEntity;
 public class CatchEvent {
   public static void register() {
     CobblemonEvents.POKEMON_CAPTURED.subscribe(Priority.NORMAL, evt -> {
-      Pokemon pokemon = evt.getPokemon();
-      ServerPlayerEntity player = evt.getPlayer();
-      for (Notification notification : Notifications.NOTIFICATIONS) {
-        if (notification.computeCaught(pokemon, player)) return;
+      try {
+        Pokemon pokemon = evt.getPokemon();
+        ServerPlayerEntity player = evt.getPlayer();
+        for (Notification notification : Notifications.NOTIFICATIONS) {
+          if (notification.computeCaught(pokemon, player)) return;
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     });
   }
