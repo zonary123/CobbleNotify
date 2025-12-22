@@ -12,6 +12,8 @@
 - Added history command to view past actions taken by the mod.
 - Added placeHolder %player% and %nearest% in spawn notifications.
 - History supports databases: MongoDB. (JSON implemented test this before using it in production.)
+- Removed formula, now you can use properties (This properties is the same that you use in command /pokegive
+  <properties>)
 
 ### Bug Fixes
 

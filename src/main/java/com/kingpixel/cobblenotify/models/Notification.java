@@ -1,5 +1,6 @@
 package com.kingpixel.cobblenotify.models;
 
+import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobblenotify.CobbleNotify;
@@ -11,7 +12,6 @@ import com.kingpixel.cobblenotify.models.webhook.WebHookOptions;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.ItemModel;
 import com.kingpixel.cobbleutils.Model.PokemonBlackList;
-import com.kingpixel.cobbleutils.Model.PokemonFormula;
 import com.kingpixel.cobbleutils.util.MinecraftUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import com.mojang.authlib.GameProfile;
@@ -32,9 +32,8 @@ public class Notification {
   private String identifier;
   private int priority;
   private ItemModel icon;
-  private boolean useFormula;
-  private double minValue;
-  private PokemonFormula formula;
+  private boolean useProperties;
+  private String properties;
   private PokemonBlackList filter;
   private NotificationOptions notificationOptions;
   private WebHookOptions webHookOptions;
@@ -43,21 +42,21 @@ public class Notification {
     this.identifier = identifier;
     this.priority = 0;
     this.icon = new ItemModel("minecraft:paper", "§e" + identifier);
-    this.useFormula = false;
-    this.minValue = 2.0;
-    this.formula = new PokemonFormula();
+    this.useProperties = false;
+    this.properties = "shiny=true";
     this.filter = new PokemonBlackList();
     this.notificationOptions = new NotificationOptions();
     this.webHookOptions = new WebHookOptions();
   }
 
   public void check() {
+    if (properties == null) properties = "shiny=true";
   }
 
   public boolean isValid(Pokemon pokemon) {
     if (CobbleNotify.config.getGlobalBlackList().isBlackListed(pokemon)) return false;
-    if (useFormula) {
-      return formula.getPokemonValue(pokemon) >= minValue;
+    if (useProperties) {
+      return PokemonProperties.Companion.parse(properties).matches(pokemon);
     } else return filter.isBlackListed(pokemon);
   }
 
