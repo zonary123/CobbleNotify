@@ -53,5 +53,20 @@ public class Config {
   }
 
   private void check() {
+    if (worldFilter == null) {
+      worldFilter = new WorldFilter();
+    }
+    if (database == null) {
+      database = new DataBaseConfig();
+      database.setType(DataBaseType.JSON);
+      database.setUrl("mongodb://localhost:27017");
+      database.setDatabase("cobblenotify");
+    }
+    if (globalBlackList == null) {
+      globalBlackList = new PokemonBlackList();
+      globalBlackList.getLabels().clear();
+      globalBlackList.getPokemons().clear();
+      globalBlackList.getAspects().add("plushie");
+    }
   }
 }

@@ -54,6 +54,10 @@ public class Notification {
 
   public void check() {
     if (properties == null) properties = "shiny=true";
+    if (worldFilter == null) worldFilter = new WorldFilter();
+    if (filter == null) filter = new PokemonBlackList();
+    if (notificationOptions == null) notificationOptions = new NotificationOptions();
+    if (webHookOptions == null) webHookOptions = new WebHookOptions();
   }
 
   public boolean isValid(Pokemon pokemon) {
