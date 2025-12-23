@@ -12,12 +12,13 @@ import java.util.Set;
  */
 @Data
 public class WorldFilter {
-  private Set<String> blacklistWorlds;
-  private Set<String> whitelistWorlds;
+
+  private Set<String> blacklistWorlds = new HashSet<>();
+  private Set<String> whitelistWorlds = new HashSet<>();
 
   public WorldFilter() {
-    this.blacklistWorlds = new HashSet<>();
-    this.whitelistWorlds = new HashSet<>();
+    blacklistWorlds.add("minecraft:example");
+    whitelistWorlds.add("*");
   }
 
   public boolean isBlackListed(World world) {
@@ -26,11 +27,18 @@ public class WorldFilter {
 
   public boolean isBlackListed(String world) {
     if (whitelistWorlds != null && !whitelistWorlds.isEmpty()) {
+      if (whitelistWorlds.contains("*")) {
+        return false;
+      }
       return !whitelistWorlds.contains(world);
     }
     if (blacklistWorlds != null && !blacklistWorlds.isEmpty()) {
+      if (blacklistWorlds.contains("*")) {
+        return true;
+      }
       return blacklistWorlds.contains(world);
     }
+
     return false;
   }
 }
