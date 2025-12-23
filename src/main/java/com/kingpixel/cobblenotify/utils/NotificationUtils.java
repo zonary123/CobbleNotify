@@ -20,7 +20,7 @@ public class NotificationUtils {
   public static boolean playerIsVanish(ServerPlayerEntity player) {
     try {
       return VanishAPI.isVanished(player);
-    } catch (Exception ignored) {
+    } catch (NoClassDefFoundError | Exception ignored) {
       return false;
     }
   }
