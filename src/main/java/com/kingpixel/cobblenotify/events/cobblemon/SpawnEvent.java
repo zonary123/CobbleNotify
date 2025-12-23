@@ -17,8 +17,10 @@ public class SpawnEvent {
     EntityEvent.ADD.register((entity, world) -> {
       try {
         if (!CobbleNotify.config.isAffectCommand()) return EventResult.pass();
+        if (CobbleNotify.config.getWorldFilter().isBlackListed(world)) return EventResult.pass();
         if (entity instanceof PokemonEntity pokemonEntity) {
           for (Notification notification : Notifications.NOTIFICATIONS) {
+            if (notification.getWorldFilter().isBlackListed(pokemonEntity.getEntityWorld())) continue;
             if (notification.computeSpawn(pokemonEntity)) return EventResult.pass();
           }
         }
@@ -33,7 +35,9 @@ public class SpawnEvent {
       try {
         if (CobbleNotify.config.isAffectCommand()) return;
         PokemonEntity pokemonEntity = evt.getEntity();
+        if (CobbleNotify.config.getWorldFilter().isBlackListed(pokemonEntity.getEntityWorld())) return;
         for (Notification notification : Notifications.NOTIFICATIONS) {
+          if (notification.getWorldFilter().isBlackListed(pokemonEntity.getEntityWorld())) continue;
           if (notification.computeSpawn(pokemonEntity)) return;
         }
       } catch (Exception e) {

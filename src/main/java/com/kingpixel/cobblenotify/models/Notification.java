@@ -33,6 +33,7 @@ public class Notification {
   private String identifier;
   private int priority;
   private ItemModel icon;
+  private WorldFilter worldFilter;
   private boolean useProperties;
   private String properties;
   private PokemonBlackList filter;
@@ -43,6 +44,7 @@ public class Notification {
     this.identifier = identifier;
     this.priority = 0;
     this.icon = new ItemModel("minecraft:paper", "§e" + identifier);
+    this.worldFilter = new WorldFilter();
     this.useProperties = false;
     this.properties = "shiny=true";
     this.filter = new PokemonBlackList();

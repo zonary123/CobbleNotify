@@ -1,6 +1,7 @@
 package com.kingpixel.cobblenotify.config;
 
 import com.kingpixel.cobblenotify.CobbleNotify;
+import com.kingpixel.cobblenotify.models.WorldFilter;
 import com.kingpixel.cobbleutils.Model.DataBaseConfig;
 import com.kingpixel.cobbleutils.Model.DataBaseType;
 import com.kingpixel.cobbleutils.Model.PokemonBlackList;
@@ -16,6 +17,7 @@ public class Config {
   private boolean debug = false;
   private boolean affectCommand = true;
   private String lang = "en_us";
+  private WorldFilter worldFilter = new WorldFilter();
   private DataBaseConfig database;
   private WebHookData webHookData = new WebHookData("", "", "");
   private PokemonBlackList globalBlackList = new PokemonBlackList();

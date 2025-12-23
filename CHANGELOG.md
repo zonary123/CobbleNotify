@@ -15,6 +15,7 @@
 - History supports databases: MongoDB. (JSON implemented — test this before using it in production.)
 - Removed formula; now you can use properties (these properties are the same ones used in the `/pokegive <properties>`
   command).
+- Global world blacklist.
 
 ### Bug Fixes
 
