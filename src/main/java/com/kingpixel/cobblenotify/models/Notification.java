@@ -9,6 +9,7 @@ import com.kingpixel.cobblenotify.models.history.HistorySpawn;
 import com.kingpixel.cobblenotify.models.history.HistoryTrade;
 import com.kingpixel.cobblenotify.models.notification.NotificationOptions;
 import com.kingpixel.cobblenotify.models.webhook.WebHookOptions;
+import com.kingpixel.cobblenotify.utils.NotificationUtils;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.ItemModel;
 import com.kingpixel.cobbleutils.Model.PokemonBlackList;
@@ -131,7 +132,11 @@ public class Notification {
       content = PokemonUtils.replace(replaceVariables(pokemonEntity, content), pokemon);
       if (!players.isEmpty()) {
         content = content
-          .replace("%nearest%", String.join(", ", players.stream().map(PlayerEntity::getGameProfile).map(GameProfile::getName).toList()))
+          .replace("%nearest%",
+            String.join(", ", players.stream()
+              .filter(p -> !p.isSpectator() && !NotificationUtils.playerIsVanish((ServerPlayerEntity) p))
+              .map(PlayerEntity::getGameProfile)
+              .map(GameProfile::getName).toList()))
           .replace("%player%", players.getFirst().getGameProfile().getName());
       }
       UUID playerUUID = players.isEmpty() ? null : players.getFirst().getGameProfile().getId();

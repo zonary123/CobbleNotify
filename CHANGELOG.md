@@ -8,12 +8,13 @@
 - More ways to send messages. Examples are in the `/cobbleutils sendMessage` command.
 - Added formula, this is more flexible than filters.
 - Added trade notifications, which can be customized in the config.
-- Added global ban option in the config. This will ban pokemons like plushies globally.
+- Added global ban option in the config. This will ban Pokémon like plushies globally.
 - Added history command to view past actions taken by the mod.
-- Added placeHolder %player% and %nearest% in spawn notifications.
-- History supports databases: MongoDB. (JSON implemented test this before using it in production.)
-- Removed formula, now you can use properties (This properties is the same that you use in command /pokegive
-  <properties>)
+- Added placeholders `%player%` and `%nearest%` in spawn notifications.
+- The `%nearest%` placeholder now **ignores spectators and vanished players**.
+- History supports databases: MongoDB. (JSON implemented — test this before using it in production.)
+- Removed formula; now you can use properties (these properties are the same ones used in the `/pokegive <properties>`
+  command).
 
 ### Bug Fixes
 
