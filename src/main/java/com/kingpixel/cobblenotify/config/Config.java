@@ -20,7 +20,7 @@ public class Config {
   private WorldFilter worldFilter = new WorldFilter();
   private DataBaseConfig database;
   private WebHookData webHookData = new WebHookData("", "", "");
-  private PokemonBlackList globalBlackList = new PokemonBlackList();
+  private PokemonBlackList globalBlackList = PokemonBlackList.createBlackList();
 
   public Config() {
     if (database == null) {
@@ -30,10 +30,7 @@ public class Config {
       database.setDatabase("cobblenotify");
     }
     if (globalBlackList == null) {
-      globalBlackList = new PokemonBlackList();
-      globalBlackList.getLabels().clear();
-      globalBlackList.getPokemons().clear();
-      globalBlackList.getAspects().add("plushie");
+      globalBlackList = PokemonBlackList.createBlackList();
     }
   }
 
