@@ -20,6 +20,7 @@
 ### Bug Fixes
 
 - Fixed notifications for non-wild Pokémon on death.
+- Fixed webHooks notifications.
 
 ### Optimizations
 
