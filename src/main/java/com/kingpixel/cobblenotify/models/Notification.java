@@ -154,10 +154,8 @@ public class Notification {
     // Save to database
     if (CobbleNotify.databaseClient == null) return notified;
     if (notified) {
-
       CobbleNotify.runAsync(() -> CobbleNotify.databaseClient.addSpawnedPokemon(new HistorySpawn(pokemonEntity,
         players, this)));
-
     }
     return notified;
   }

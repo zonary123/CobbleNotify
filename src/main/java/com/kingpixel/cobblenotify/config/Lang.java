@@ -27,6 +27,13 @@ public class Lang {
     "&7Caught By: %caughtBy%",
     "&7Caught Time: %caughtDate%"
   );
+  private List<String> tradeLore = List.of(
+    "&7Offered By: %trader%",
+    "&7Pokemon Offered: %offeredPokemon%",
+    "&7Received By: %receiver%",
+    "&7Pokemon Received: %receivedPokemon%",
+    "%lorepokemon%"
+  );
   private GlobalGui globalGui = new GlobalGui();
   private SpawnGui spawnGui = new SpawnGui();
   private CaughtGui caughtGui = new CaughtGui();

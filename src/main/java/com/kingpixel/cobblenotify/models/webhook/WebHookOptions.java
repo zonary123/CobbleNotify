@@ -32,15 +32,18 @@ public class WebHookOptions {
   }
 
   public boolean sendMessage(Actions action, List<Pokemon> pokemons) {
-    WebHookStruct.runAsync(() -> {
-      WebHookStruct message = getMessage(action);
-      Pokemon pokemon = pokemons.getFirst();
-      List<String> description = new ArrayList<>(message.getDescription());
-      String descriptionJoined = String.join("\n", description);
-      descriptionJoined = Notification.replaceVariables(pokemon.getEntity(), PokemonUtils.replace(descriptionJoined, pokemons));
-      message.sendMessage(List.of(replace(descriptionJoined)), pokemon);
-    });
-    return isActive(action);
+    boolean active = isActive(action);
+    if (active) {
+      WebHookStruct.runAsync(() -> {
+        WebHookStruct message = getMessage(action);
+        Pokemon pokemon = pokemons.getFirst();
+        List<String> description = new ArrayList<>(message.getDescription());
+        String descriptionJoined = String.join("\n", description);
+        descriptionJoined = Notification.replaceVariables(pokemon.getEntity(), PokemonUtils.replace(descriptionJoined, pokemons));
+        message.sendMessage(List.of(replace(descriptionJoined)), pokemon);
+      });
+    }
+    return active;
   }
 
   private boolean isActive(Actions action) {
