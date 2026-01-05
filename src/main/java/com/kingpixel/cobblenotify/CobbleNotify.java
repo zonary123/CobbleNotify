@@ -63,6 +63,10 @@ public class CobbleNotify implements ModInitializer {
   }
 
   public static void runAsync(Runnable task) {
+    if (EXECUTOR_SERVICE.isShutdown() || EXECUTOR_SERVICE.isTerminated()) {
+      task.run();
+      return;
+    }
     CompletableFuture.runAsync(task, EXECUTOR_SERVICE)
       .orTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
       .exceptionally(ex -> {
