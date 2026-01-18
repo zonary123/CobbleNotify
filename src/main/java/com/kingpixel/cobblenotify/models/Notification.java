@@ -1,5 +1,6 @@
 package com.kingpixel.cobblenotify.models;
 
+import com.cobblemon.mod.common.api.moves.Move;
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.api.types.ElementalType;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
@@ -235,8 +236,7 @@ public class Notification {
   }
 
   private static String getMove(int index, Pokemon pokemon) {
-    if (index < 1 || index > 4) return "None";
-    var move = pokemon.getMoveSet().getMoves().size() >= index ? pokemon.getMoveSet().getMoves().get(index - 1) : null;
+    Move move = pokemon.getMoveSet().get(index);
     return move != null ? move.getName() : "None";
   }
 }
