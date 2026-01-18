@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.5] - 18-01-2026
+
+### Bug Fixes
+
+- Fixed Notifications WebHooks information.
+
 ## [1.1.4] - 2025-12-03
 
 ### Features
@@ -21,7 +27,6 @@
 
 - Fixed notifications for non-wild Pokémon on death.
 - Fixed webHooks notifications.
-- Fixed Notifications
 
 ### Optimizations
 
