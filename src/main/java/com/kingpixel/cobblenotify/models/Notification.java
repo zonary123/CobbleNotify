@@ -1,6 +1,7 @@
 package com.kingpixel.cobblenotify.models;
 
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
+import com.cobblemon.mod.common.api.types.ElementalType;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobblenotify.CobbleNotify;
@@ -22,6 +23,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Box;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,10 +77,10 @@ public class Notification {
       var messages = notificationOptions.getNotificationMessages();
       var message = messages.getCatchMessage();
       var content = message.getRawMessage();
-      content = PokemonUtils.replace(
-        replaceVariables(pokemon.getEntity(), content)
-          .replace("%player%", player.getGameProfile().getName()),
-        pokemon
+      content = replaceVariables(
+        pokemon.getEntity(), PokemonUtils.replace(
+          content, pokemon
+        )
       );
       message.sendMessage((UUID) null, content, CobbleNotify.lang.getPrefix(), false);
       notified = true;
@@ -208,8 +210,33 @@ public class Notification {
     message = message.replace("%world%", MinecraftUtils.getWorldTranslate(world));
     message = message.replace("%biome%", MinecraftUtils.getBiomesTranslate(world.getBiome(pokemonEntity.getBlockPos())));
     message = message.replace("%server%", CobbleUtils.config.getServer());
+    // Pokemon
+    Pokemon pokemon = pokemonEntity.getPokemon();
+    message = message.replace("%types%", getTypes(pokemon));
+    message = message.replace("%ability%", pokemon.getAbility().getName());
+    message = message.replace("%nmove1%", getMove(0, pokemon));
+    message = message.replace("%nmove2%", getMove(1, pokemon));
+    message = message.replace("%nmove3%", getMove(2, pokemon));
+    message = message.replace("%nmove4%", getMove(3, pokemon));
     return message;
   }
 
+  private static String getTypes(Pokemon pokemon) {
+    Iterable<ElementalType> types = pokemon.getForm().getTypes();
+    Iterator<ElementalType> iterator = types.iterator();
+    StringBuilder typesString = new StringBuilder();
+    while (iterator.hasNext()) {
+      typesString.append(iterator.next().getName());
+      if (iterator.hasNext()) {
+        typesString.append(" / ");
+      }
+    }
+    return typesString.toString();
+  }
 
+  private static String getMove(int index, Pokemon pokemon) {
+    if (index < 1 || index > 4) return "None";
+    var move = pokemon.getMoveSet().getMoves().size() >= index ? pokemon.getMoveSet().getMoves().get(index - 1) : null;
+    return move != null ? move.getName() : "None";
+  }
 }
