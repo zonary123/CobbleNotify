@@ -80,7 +80,9 @@ public class Notification {
       var content = message.getRawMessage();
       content = replaceVariables(
         pokemon.getEntity(), PokemonUtils.replace(
-          content, pokemon
+          content
+            .replace("%player%", player.getGameProfile().getName()),
+          pokemon
         )
       );
       message.sendMessage((UUID) null, content, CobbleNotify.lang.getPrefix(), false);
