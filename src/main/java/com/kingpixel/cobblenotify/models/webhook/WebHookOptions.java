@@ -38,7 +38,7 @@ public class WebHookOptions {
         Pokemon pokemon = pokemons.getFirst();
         List<String> description = new ArrayList<>(message.getDescription());
         String descriptionJoined = String.join("\n", description);
-        descriptionJoined = Notification.replaceVariables(pokemon.getEntity(), descriptionJoined);
+        descriptionJoined = Notification.replaceVariables(pokemon.getEntity(), pokemon, descriptionJoined);
         descriptionJoined = PokemonUtils.replace(descriptionJoined, pokemons);
         message.sendMessage(List.of(descriptionJoined), pokemon);
       });

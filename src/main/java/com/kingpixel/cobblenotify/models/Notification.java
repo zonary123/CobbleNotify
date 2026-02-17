@@ -79,7 +79,7 @@ public class Notification {
       var message = messages.getCatchMessage();
       var content = message.getRawMessage();
       content = replaceVariables(
-        pokemon.getEntity(), PokemonUtils.replace(
+        pokemon.getEntity(), pokemon, PokemonUtils.replace(
           content
             .replace("%player%", player.getGameProfile().getName()),
           pokemon
@@ -109,7 +109,7 @@ public class Notification {
       var message = messages.getDefeatMessage();
       var content = message.getRawMessage();
       content = PokemonUtils.replace(
-        replaceVariables(pokemon.getEntity(), content)
+        replaceVariables(pokemon.getEntity(), pokemon, content)
           .replace("%player%", player.getGameProfile().getName())
         , pokemon
       );
@@ -139,7 +139,7 @@ public class Notification {
       var messages = notificationOptions.getNotificationMessages();
       var message = messages.getSpawnMessage();
       var content = message.getRawMessage();
-      content = PokemonUtils.replace(replaceVariables(pokemonEntity, content), pokemon);
+      content = PokemonUtils.replace(replaceVariables(pokemonEntity, pokemon, content), pokemon);
       if (!players.isEmpty()) {
         content = content
           .replace("%nearest%",
@@ -199,20 +199,22 @@ public class Notification {
     return notified;
   }
 
-  public static String replaceVariables(PokemonEntity pokemonEntity, String message) {
-    if (pokemonEntity == null) return message;
-    var x = (int) pokemonEntity.getX();
-    var y = (int) pokemonEntity.getY();
-    var z = (int) pokemonEntity.getZ();
-    var world = pokemonEntity.getEntityWorld();
-    message = message.replace("%x%", String.valueOf(x));
-    message = message.replace("%y%", String.valueOf(y));
-    message = message.replace("%z%", String.valueOf(z));
-    message = message.replace("%world%", MinecraftUtils.getWorldTranslate(world));
-    message = message.replace("%biome%", MinecraftUtils.getBiomesTranslate(world.getBiome(pokemonEntity.getBlockPos())));
+  public static String replaceVariables(PokemonEntity pokemonEntity, Pokemon pokemon, String message) {
+    if (pokemonEntity != null) {
+      var x = (int) pokemonEntity.getX();
+      var y = (int) pokemonEntity.getY();
+      var z = (int) pokemonEntity.getZ();
+      var world = pokemonEntity.getEntityWorld();
+      message = message.replace("%x%", String.valueOf(x));
+      message = message.replace("%y%", String.valueOf(y));
+      message = message.replace("%z%", String.valueOf(z));
+      message = message.replace("%world%", MinecraftUtils.getWorldTranslate(world));
+      message = message.replace("%biome%", MinecraftUtils.getBiomesTranslate(world.getBiome(pokemonEntity.getBlockPos())));
+    }
+
     message = message.replace("%server%", CobbleUtils.config.getServer());
-    // Pokemon
-    Pokemon pokemon = pokemonEntity.getPokemon();
+
+    // Pokemon variables
     message = message
       .replace("%pokemon%", pokemon.showdownId())
       .replace("%types%", getTypes(pokemon))
