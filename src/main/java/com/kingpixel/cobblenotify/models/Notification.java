@@ -4,6 +4,7 @@ import com.cobblemon.mod.common.api.moves.Move;
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.api.types.ElementalType;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
+import com.cobblemon.mod.common.pokemon.Nature;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobblenotify.CobbleNotify;
 import com.kingpixel.cobblenotify.models.enums.Actions;
@@ -214,11 +215,15 @@ public class Notification {
 
     message = message.replace("%server%", CobbleUtils.config.getServer());
 
+
     // Pokemon variables
+    Nature nature = pokemon.getNature();
     message = message
       .replace("%pokemon%", pokemon.showdownId())
       .replace("%types%", getTypes(pokemon))
       .replace("%ability%", pokemon.getAbility().getName())
+      .replace("%up%", nature.getIncreasedStat() == null ? "" : nature.getIncreasedStat().getShowdownId())
+      .replace("%down%", nature.getDecreasedStat() == null ? "" : nature.getDecreasedStat().getShowdownId())
       .replace("%nature%", pokemon.getNature().getDisplayName())
       .replace("%move1%", getMove(0, pokemon))
       .replace("%move2%", getMove(1, pokemon))

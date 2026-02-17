@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author Carlos Varas Alonso - 23/11/2025 19:40
@@ -40,7 +41,7 @@ public class WebHookOptions {
         String descriptionJoined = String.join("\n", description);
         descriptionJoined = Notification.replaceVariables(pokemon.getEntity(), pokemon, descriptionJoined);
         descriptionJoined = PokemonUtils.replace(descriptionJoined, pokemons);
-        message.sendMessage(List.of(descriptionJoined), pokemon);
+        message.sendMessage(List.of(replace(descriptionJoined)), pokemon);
       });
     }
     return active;
@@ -62,6 +63,15 @@ public class WebHookOptions {
       case SPAWN -> webHookMessages.getSpawnMessage();
       case TRADE -> webHookMessages.getTradeMessage();
     };
+  }
+
+  // Replaces
+  private static final Pattern REGEX_KYORI = Pattern.compile(
+    "<[^>]*>|[&§][0-9A-FK-ORa-fk-or]"
+  );
+
+  private String replace(String content) {
+    return REGEX_KYORI.matcher(content).replaceAll("");
   }
 
 
