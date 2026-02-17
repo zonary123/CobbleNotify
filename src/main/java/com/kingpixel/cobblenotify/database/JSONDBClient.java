@@ -109,7 +109,7 @@ public class JSONDBClient extends DataBaseClient {
 
   @Override
   public List<HistorySpawn> getCaughtPokemons(int page) {
-    List<HistorySpawn> all = getSpawnedPokemons(Integer.MAX_VALUE);
+    List<HistorySpawn> all = getSpawnedPokemons(page);
     List<HistorySpawn> caught = all.stream()
       .filter(HistorySpawn::isCaught)
       .toList();

@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 - Fixed Notifications WebHooks information.
+- Fixed '/cobblenotify caught' command not working.
 
 ## [1.1.4] - 2025-12-03
 
