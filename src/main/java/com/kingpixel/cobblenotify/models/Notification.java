@@ -125,7 +125,6 @@ public class Notification {
    * Compute the spawn notification
    *
    * @param pokemonEntity The spawned Pokemon entity
-   *
    * @return true if a notification was sent
    */
   public boolean computeSpawn(PokemonEntity pokemonEntity) {
@@ -172,7 +171,6 @@ public class Notification {
    * @param pokemon1 Pokemon 1 of the trade
    * @param player2  Player 2 of the trade
    * @param pokemon2 Pokemon 2 of the trade
-   *
    * @return true if a notification was sent
    */
   public boolean computeTrade(Pokemon pokemon1, Pokemon pokemon2, ServerPlayerEntity player1,
@@ -215,12 +213,15 @@ public class Notification {
     message = message.replace("%server%", CobbleUtils.config.getServer());
     // Pokemon
     Pokemon pokemon = pokemonEntity.getPokemon();
-    message = message.replace("%types%", getTypes(pokemon));
-    message = message.replace("%ability%", pokemon.getAbility().getName());
-    message = message.replace("%nmove1%", getMove(0, pokemon));
-    message = message.replace("%nmove2%", getMove(1, pokemon));
-    message = message.replace("%nmove3%", getMove(2, pokemon));
-    message = message.replace("%nmove4%", getMove(3, pokemon));
+    message = message
+      .replace("%pokemon%", pokemon.showdownId())
+      .replace("%types%", getTypes(pokemon))
+      .replace("%ability%", pokemon.getAbility().getName())
+      .replace("%nature%", pokemon.getNature().getDisplayName())
+      .replace("%move1%", getMove(0, pokemon))
+      .replace("%move2%", getMove(1, pokemon))
+      .replace("%move3%", getMove(2, pokemon))
+      .replace("%move4%", getMove(3, pokemon));
     return message;
   }
 
