@@ -1,10 +1,13 @@
 package com.kingpixel.cobblenotify.models.webhook;
 
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobblenotify.models.Notification;
 import com.kingpixel.cobblenotify.models.enums.Actions;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import lombok.Data;
+import net.minecraft.server.network.ServerPlayerEntity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +34,7 @@ public class WebHookOptions {
     this.webHookMessages = new WebHookMessages();
   }
 
-  public boolean sendMessage(Actions action, List<Pokemon> pokemons) {
+  public boolean sendMessage(Actions action, List<Pokemon> pokemons, @Nullable ServerPlayerEntity player, @Nullable PokemonEntity pokemonEntity) {
     boolean active = isActive(action);
     if (active) {
       WebHookStruct.runAsync(() -> {
@@ -39,7 +42,8 @@ public class WebHookOptions {
         Pokemon pokemon = pokemons.getFirst();
         List<String> description = new ArrayList<>(message.getDescription());
         String descriptionJoined = String.join("\n", description);
-        descriptionJoined = Notification.replaceVariables(pokemon.getEntity(), pokemon, descriptionJoined);
+        descriptionJoined = descriptionJoined.replace("%player%", player != null ? player.getGameProfile().getName() : "Unknown");
+        descriptionJoined = Notification.replaceVariables(pokemonEntity, pokemon, descriptionJoined);
         descriptionJoined = PokemonUtils.replace(descriptionJoined, pokemons);
         message.sendMessage(List.of(replace(descriptionJoined)), pokemon);
       });

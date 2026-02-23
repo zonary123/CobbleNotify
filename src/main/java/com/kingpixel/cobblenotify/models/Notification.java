@@ -91,7 +91,7 @@ public class Notification {
       notified = true;
     }
     // Send WebHook notification
-    notified |= webHookOptions.sendMessage(Actions.CAUGHT, List.of(pokemon));
+    notified |= webHookOptions.sendMessage(Actions.CAUGHT, List.of(pokemon), player, null);
     if (CobbleNotify.databaseClient == null) return notified;
     if (notified) CobbleNotify.runAsync(() -> {
       var history = CobbleNotify.databaseClient.getSpawnedPokemonById(pokemon.getUuid());
@@ -120,7 +120,7 @@ public class Notification {
       notified = true;
     }
     // Send WebHook notification
-    notified |= webHookOptions.sendMessage(Actions.DEFEAT, List.of(pokemon));
+    notified |= webHookOptions.sendMessage(Actions.DEFEAT, List.of(pokemon), player, null);
     return notified;
   }
 
@@ -157,7 +157,7 @@ public class Notification {
       notified = true;
     }
     // Send WebHook notification
-    notified |= webHookOptions.sendMessage(Actions.SPAWN, List.of(pokemon));
+    notified |= webHookOptions.sendMessage(Actions.SPAWN, List.of(pokemon), null, pokemonEntity);
     // Save to database
     if (CobbleNotify.databaseClient == null) return notified;
     if (notified) {
@@ -194,7 +194,7 @@ public class Notification {
       notified = true;
     }
     // Send WebHook notification
-    notified |= webHookOptions.sendMessage(Actions.TRADE, List.of(pokemon1, pokemon2));
+    notified |= webHookOptions.sendMessage(Actions.TRADE, List.of(pokemon1, pokemon2), null, null);
     // Save to database
     if (notified) {
       if (CobbleNotify.databaseClient == null) return notified;
@@ -214,7 +214,10 @@ public class Notification {
       message = message.replace("%y%", String.valueOf(y));
       message = message.replace("%z%", String.valueOf(z));
       message = message.replace("%world%", MinecraftUtils.getWorldTranslate(world));
-      message = message.replace("%biome%", MinecraftUtils.getBiomesTranslate(world.getBiome(pokemonEntity.getBlockPos())));
+
+      var biome = world.getBiome(pokemonEntity.getBlockPos());
+      String biomeId = biome.getIdAsString();
+      message = message.replace("%biome%", CobbleUtils.language.getBiomes().getOrDefault(biomeId, biomeId));
     }
 
     message = message.replace("%server%", CobbleUtils.config.getServer());
