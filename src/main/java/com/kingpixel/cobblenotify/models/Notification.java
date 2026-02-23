@@ -94,6 +94,7 @@ public class Notification {
     if (CobbleNotify.databaseClient == null) return notified;
     if (notified) CobbleNotify.runAsync(() -> {
       var history = CobbleNotify.databaseClient.getSpawnedPokemonById(pokemon.getUuid());
+      if (history == null) return;
       history.caught(player);
       CobbleNotify.databaseClient.updateHistorySpawn(history);
     });
@@ -160,7 +161,8 @@ public class Notification {
     if (CobbleNotify.databaseClient == null) return notified;
     if (notified) {
       CobbleNotify.runAsync(() -> CobbleNotify.databaseClient.addSpawnedPokemon(new HistorySpawn(pokemonEntity,
-        players, this)));
+        players, this))
+      );
     }
     return notified;
   }

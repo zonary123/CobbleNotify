@@ -4,6 +4,7 @@ import com.kingpixel.cobblenotify.CobbleNotify;
 import com.kingpixel.cobblenotify.models.history.HistorySpawn;
 import com.kingpixel.cobblenotify.models.history.HistoryTrade;
 import com.kingpixel.cobbleutils.Model.DataBaseConfig;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +32,7 @@ public abstract class DataBaseClient {
   public abstract void updateHistorySpawn(HistorySpawn history);
 
   // Get Methods
-  public abstract HistorySpawn getSpawnedPokemonById(UUID uuid);
+  public abstract @Nullable HistorySpawn getSpawnedPokemonById(UUID uuid);
 
   public abstract List<HistorySpawn> getSpawnedPokemons(int page);
 

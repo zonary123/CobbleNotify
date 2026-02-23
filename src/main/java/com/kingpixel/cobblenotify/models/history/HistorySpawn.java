@@ -1,6 +1,7 @@
 package com.kingpixel.cobblenotify.models.history;
 
 import ca.landonjw.gooeylibs2.api.button.GooeyButton;
+import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.item.PokemonItem;
 import com.cobblemon.mod.common.pokemon.Pokemon;
@@ -59,7 +60,10 @@ public class HistorySpawn {
     this.caught = false;
     Pokemon poke = entity.getPokemon();
     this.identifier = poke.getUuid();
-    this.pokemon = poke;
+    if (poke.getLevel() > Cobblemon.INSTANCE.getConfig().getMaxPokemonLevel()) {
+      this.pokemon = poke.clone(false, CobbleUtils.server.getRegistryManager());
+      this.pokemon.setLevel(1);
+    }
     this.notificationId = notification.getIdentifier();
   }
 
@@ -67,6 +71,7 @@ public class HistorySpawn {
     this.caught = true;
     this.caughtBy = player.getGameProfile().getName();
     this.caughtDate = Instant.now();
+    
   }
 
   // Convert to MongoDB Document
