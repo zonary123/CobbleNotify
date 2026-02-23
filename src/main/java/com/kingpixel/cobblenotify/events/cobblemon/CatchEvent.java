@@ -1,5 +1,6 @@
 package com.kingpixel.cobblenotify.events.cobblemon;
 
+import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.Priority;
 import com.cobblemon.mod.common.api.events.CobblemonEvents;
 import com.cobblemon.mod.common.pokemon.Pokemon;
@@ -18,6 +19,7 @@ public class CatchEvent {
         Pokemon pokemon = evt.getPokemon();
         ServerPlayerEntity player = evt.getPlayer();
         if (CobbleNotify.config.getWorldFilter().isBlackListed(player.getServerWorld())) return;
+        if (pokemon.getLevel() > Cobblemon.INSTANCE.getConfig().getMaxPokemonLevel()) pokemon.setLevel(1);
         for (Notification notification : Notifications.NOTIFICATIONS) {
           if (notification.getWorldFilter().isBlackListed(player.getServerWorld())) continue;
           if (notification.computeCaught(pokemon, player)) return;
