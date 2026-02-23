@@ -11,7 +11,7 @@ import com.kingpixel.cobblenotify.models.Notification;
  */
 public class DefeatEvent {
   public static void register() {
-    CobblemonEvents.BATTLE_FAINTED.subscribe(Priority.NORMAL, evt -> {
+    CobblemonEvents.BATTLE_FAINTED.subscribe(Priority.LOWEST, evt -> {
       try {
         var battle = evt.getBattle();
         if (!battle.isPvW()) return;

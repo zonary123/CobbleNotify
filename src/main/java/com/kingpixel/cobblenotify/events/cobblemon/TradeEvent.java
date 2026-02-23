@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 public class TradeEvent {
   public static void register() {
-    CobblemonEvents.TRADE_EVENT_POST.subscribe(Priority.NORMAL, evt -> {
+    CobblemonEvents.TRADE_EVENT_POST.subscribe(Priority.LOWEST, evt -> {
       try {
         Pokemon pokemon1 = evt.getTradeParticipant1Pokemon();
         Pokemon pokemon2 = evt.getTradeParticipant2Pokemon();

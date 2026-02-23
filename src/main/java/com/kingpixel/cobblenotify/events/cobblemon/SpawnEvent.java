@@ -31,7 +31,7 @@ public class SpawnEvent {
       }
     });
 
-    CobblemonEvents.POKEMON_ENTITY_SPAWN.subscribe(Priority.NORMAL, evt -> {
+    CobblemonEvents.POKEMON_ENTITY_SPAWN.subscribe(Priority.LOWEST, evt -> {
       try {
         if (CobbleNotify.config.isAffectCommand()) return;
         PokemonEntity pokemonEntity = evt.getEntity();
