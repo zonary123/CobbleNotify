@@ -1,5 +1,6 @@
 package com.kingpixel.cobblenotify.models;
 
+import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.moves.Move;
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.api.types.ElementalType;
@@ -160,6 +161,7 @@ public class Notification {
     // Save to database
     if (CobbleNotify.databaseClient == null) return notified;
     if (notified) {
+      if (pokemon.getLevel() > Cobblemon.INSTANCE.getConfig().getMaxPokemonLevel()) return notified;
       CobbleNotify.runAsync(() -> CobbleNotify.databaseClient.addSpawnedPokemon(new HistorySpawn(pokemonEntity,
         players, this))
       );
