@@ -111,11 +111,8 @@ public class Notification {
       var messages = notificationOptions.getNotificationMessages();
       var message = messages.getDefeatMessage();
       var content = message.getRawMessage();
-      content = PokemonUtils.replace(
-        replaceVariables(pokemon.getEntity(), pokemon, content)
-          .replace("%player%", player.getGameProfile().getName())
-        , pokemon
-      );
+      content = replaceVariables(pokemon.getEntity(), pokemon, PokemonUtils.replace(content, pokemon))
+        .replace("%player%", player.getGameProfile().getName())
       message.sendMessage((UUID) null, content, CobbleNotify.lang.getPrefix(), false);
       notified = true;
     }
@@ -142,7 +139,7 @@ public class Notification {
       var messages = notificationOptions.getNotificationMessages();
       var message = messages.getSpawnMessage();
       var content = message.getRawMessage();
-      content = PokemonUtils.replace(replaceVariables(pokemonEntity, pokemon, content), pokemon);
+      content = replaceVariables(pokemonEntity, pokemon, PokemonUtils.replace(content, pokemon));
       if (!players.isEmpty()) {
         content = content
           .replace("%nearest%",
