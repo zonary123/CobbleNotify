@@ -52,7 +52,7 @@ public class Notification {
     this.worldFilter = new WorldFilter();
     this.useProperties = false;
     this.properties = "shiny=true";
-    this.filter = new PokemonBlackList();
+    this.filter = PokemonBlackList.createBlackList();
     this.notificationOptions = new NotificationOptions();
     this.webHookOptions = new WebHookOptions();
   }
