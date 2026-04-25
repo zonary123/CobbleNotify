@@ -15,20 +15,5 @@ public class Events {
     SpawnEvent.register();
     DefeatEvent.register();
 
-    CobblemonEvents.BATTLE_FAINTED.subscribe(Priority.LOW, evt -> {
-      sendLog("[BATTLE_FAINTED] Pokémon fainted: " + evt.getKilled().getName().getString(), evt.getBattle());
-    });
-
-    CobblemonEvents.BATTLE_FLED.subscribe(Priority.LOW, evt -> {
-      sendLog("[BATTLE_FLED] Player fled from battle", evt.getBattle());
-    });
-
-    CobblemonEvents.BATTLE_VICTORY.subscribe(Priority.LOW, evt -> {
-      sendLog("[BATTLE_VICTORY] Battle won!", evt.getBattle());
-    });
-
-    CobblemonEvents.BATTLE_STARTED_PRE.subscribe(Priority.LOW, evt -> {
-      sendLog("[BATTLE_STARTED_PRE] Battle started!", evt.getBattle());
-    });
   }
 }
