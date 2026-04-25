@@ -11,7 +11,9 @@ import com.kingpixel.cobblenotify.CobbleNotify;
 import com.kingpixel.cobblenotify.models.enums.Actions;
 import com.kingpixel.cobblenotify.models.history.HistorySpawn;
 import com.kingpixel.cobblenotify.models.history.HistoryTrade;
+import com.kingpixel.cobblenotify.models.notification.NotificationMessages;
 import com.kingpixel.cobblenotify.models.notification.NotificationOptions;
+import com.kingpixel.cobblenotify.models.webhook.WebHookMessages;
 import com.kingpixel.cobblenotify.models.webhook.WebHookOptions;
 import com.kingpixel.cobblenotify.utils.NotificationUtils;
 import com.kingpixel.cobbleutils.CobbleUtils;
@@ -58,11 +60,17 @@ public class Notification {
   }
 
   public void check() {
-    if (properties == null) properties = "shiny=true";
+    if (identifier == null || identifier.isBlank()) identifier = "notification";
+    if (properties == null || properties.isBlank()) properties = "shiny=true";
+    if (icon == null) icon = new ItemModel("minecraft:paper", "§e" + identifier);
     if (worldFilter == null) worldFilter = new WorldFilter();
-    if (filter == null) filter = new PokemonBlackList();
+    if (filter == null) filter = PokemonBlackList.createBlackList();
     if (notificationOptions == null) notificationOptions = new NotificationOptions();
+    if (notificationOptions.getNotificationMessages() == null)
+      notificationOptions.setNotificationMessages(new NotificationMessages());
     if (webHookOptions == null) webHookOptions = new WebHookOptions();
+    if (webHookOptions.getWebHookMessages() == null)
+      webHookOptions.setWebHookMessages(new WebHookMessages());
   }
 
   public boolean isValid(Pokemon pokemon) {
@@ -140,15 +148,16 @@ public class Notification {
       var message = messages.getSpawnMessage();
       var content = message.getRawMessage();
       content = replaceVariables(pokemonEntity, pokemon, PokemonUtils.replace(content, pokemon));
-      if (!players.isEmpty()) {
-        content = content
-          .replace("%nearest%",
-            String.join(", ", players.stream()
-              .filter(p -> !p.isSpectator() && !NotificationUtils.playerIsVanish((ServerPlayerEntity) p))
-              .map(PlayerEntity::getGameProfile)
-              .map(GameProfile::getName).toList()))
-          .replace("%player%", players.getFirst().getGameProfile().getName());
-      }
+      String nearestPlayers = String.join(", ", players.stream()
+        .filter(p -> !p.isSpectator() && !NotificationUtils.playerIsVanish((ServerPlayerEntity) p))
+        .map(PlayerEntity::getGameProfile)
+        .map(GameProfile::getName)
+        .toList());
+      String nearest = nearestPlayers.isBlank() ? "none" : nearestPlayers;
+      String playerName = players.isEmpty() ? "Unknown" : players.getFirst().getGameProfile().getName();
+      content = content
+        .replace("%nearest%", nearest)
+        .replace("%player%", playerName);
       UUID playerUUID = players.isEmpty() ? null : players.getFirst().getGameProfile().getId();
       message.sendMessage(playerUUID, content, CobbleNotify.lang.getPrefix(), false);
       notified = true;
@@ -250,7 +259,11 @@ public class Notification {
   }
 
   private static String getMove(int index, Pokemon pokemon) {
-    Move move = pokemon.getMoveSet().get(index);
-    return move != null ? move.getName() : "None";
+    try {
+      Move move = pokemon.getMoveSet().get(index);
+      return move != null ? move.getName() : "None";
+    } catch (IndexOutOfBoundsException ignored) {
+      return "None";
+    }
   }
 }
