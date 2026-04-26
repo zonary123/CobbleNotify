@@ -146,7 +146,7 @@ public class Notification {
       .filter(p -> !p.isSpectator() && !NotificationUtils.playerIsVanish((ServerPlayerEntity) p))
       .toList();
     boolean notified = false;
-    if (notificationOptions.isSpawn() && !visiblePlayers.isEmpty()) {
+    if (notificationOptions.isSpawn() && (players.isEmpty() || !visiblePlayers.isEmpty())) {
       var messages = notificationOptions.getNotificationMessages();
       var message = messages.getSpawnMessage();
       var content = message.getRawMessage();
@@ -156,11 +156,11 @@ public class Notification {
         .map(GameProfile::getName)
         .toList());
       String nearest = nearestPlayers.isBlank() ? "none" : nearestPlayers;
-      String playerName = visiblePlayers.getFirst().getGameProfile().getName();
+      String playerName = visiblePlayers.isEmpty() ? "Unknown" : visiblePlayers.getFirst().getGameProfile().getName();
       content = content
         .replace("%nearest%", nearest)
         .replace("%player%", playerName);
-      UUID playerUUID = visiblePlayers.getFirst().getGameProfile().getId();
+      UUID playerUUID = visiblePlayers.isEmpty() ? null : visiblePlayers.getFirst().getGameProfile().getId();
       message.sendMessage(playerUUID, content, CobbleNotify.lang.getPrefix(), false);
       notified = true;
     }
