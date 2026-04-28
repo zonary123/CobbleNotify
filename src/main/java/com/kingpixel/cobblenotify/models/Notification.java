@@ -84,7 +84,7 @@ public class Notification {
     if (!isValid(pokemon)) return false;
     boolean notified = false;
     // Send Message notification
-    if (notificationOptions.isCaught()) {
+    if (notificationOptions.isCaught() && !NotificationUtils.playerIsVanish(player)) {
       var messages = notificationOptions.getNotificationMessages();
       var message = messages.getCatchMessage();
       var content = message.getRawMessage();
@@ -142,23 +142,25 @@ public class Notification {
     // Send Message notification
     Box boundingBox = pokemonEntity.getBoundingBox().expand(64);
     var players = pokemonEntity.getEntityWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), boundingBox, p -> true);
+    var visiblePlayers = players.stream()
+      .filter(p -> !p.isSpectator() && !NotificationUtils.playerIsVanish((ServerPlayerEntity) p))
+      .toList();
     boolean notified = false;
-    if (notificationOptions.isSpawn()) {
+    if (notificationOptions.isSpawn() && (players.isEmpty() || !visiblePlayers.isEmpty())) {
       var messages = notificationOptions.getNotificationMessages();
       var message = messages.getSpawnMessage();
       var content = message.getRawMessage();
       content = replaceVariables(pokemonEntity, pokemon, PokemonUtils.replace(content, pokemon));
-      String nearestPlayers = String.join(", ", players.stream()
-        .filter(p -> !p.isSpectator() && !NotificationUtils.playerIsVanish((ServerPlayerEntity) p))
+      String nearestPlayers = String.join(", ", visiblePlayers.stream()
         .map(PlayerEntity::getGameProfile)
         .map(GameProfile::getName)
         .toList());
       String nearest = nearestPlayers.isBlank() ? "none" : nearestPlayers;
-      String playerName = players.isEmpty() ? "Unknown" : players.getFirst().getGameProfile().getName();
+      String playerName = visiblePlayers.isEmpty() ? "Unknown" : visiblePlayers.getFirst().getGameProfile().getName();
       content = content
         .replace("%nearest%", nearest)
         .replace("%player%", playerName);
-      UUID playerUUID = players.isEmpty() ? null : players.getFirst().getGameProfile().getId();
+      UUID playerUUID = visiblePlayers.isEmpty() ? null : visiblePlayers.getFirst().getGameProfile().getId();
       message.sendMessage(playerUUID, content, CobbleNotify.lang.getPrefix(), false);
       notified = true;
     }
