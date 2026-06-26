@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.6] - 26-06-2026
+
+### Bug Fixes
+
+- Fixed default configuration.
+
 ## [1.1.5] - 18-01-2026
 
 ### Bug Fixes

@@ -103,18 +103,18 @@ public class Notifications {
   private static void setDefaultMessages(Notification notification, String category) {
     var messages = notification.getNotificationOptions().getNotificationMessages();
     messages.getSpawnMessage().setRawMessage(
-      "%prefix% <#F2B78A>[" + category + "] <#94C3E3>%pokemon% <#F2B78A>spawned at " +
+      "cb:%prefix% <#F2B78A>[" + category + "] <#94C3E3>%pokemon% <#F2B78A>spawned at " +
         "<#DE9157>x:<#FFFFFF>%x% <#DE9157>y:<#FFFFFF>%y% <#DE9157>z:<#FFFFFF>%z% " +
         "<#F2B78A>in <#CEF2AC>%world% <#F2B78A>(<#CEF2AC>%biome%<#F2B78A>)."
     );
     messages.getCatchMessage().setRawMessage(
-      "%prefix% <#F2B78A>[" + category + "] <#DE8D2A>%player% <#F2B78A>caught <#94C3E3>%pokemon%<#F2B78A>!"
+      "cb:%prefix% <#F2B78A>[" + category + "] <#DE8D2A>%player% <#F2B78A>caught <#94C3E3>%pokemon%<#F2B78A>!"
     );
     messages.getDefeatMessage().setRawMessage(
-      "%prefix% <#F2B78A>[" + category + "] <#DE8D2A>%player% <#F2B78A>defeated <#94C3E3>%pokemon%<#F2B78A>!"
+      "cb:%prefix% <#F2B78A>[" + category + "] <#DE8D2A>%player% <#F2B78A>defeated <#94C3E3>%pokemon%<#F2B78A>!"
     );
     messages.getTradeMessage().setRawMessage(
-      "%prefix% <#F2B78A>[" + category + "] <#DE8D2A>%player1% <#F2B78A>traded <#94C3E3>%pokemon1% " +
+      "cb:%prefix% <#F2B78A>[" + category + "] <#DE8D2A>%player1% <#F2B78A>traded <#94C3E3>%pokemon1% " +
         "<#F2B78A>with <#DE8D2A>%player2% <#F2B78A>for <#94C3E3>%pokemon2%<#F2B78A>."
     );
   }
