@@ -74,6 +74,10 @@ public class Notification {
   }
 
   public boolean isValid(Pokemon pokemon) {
+    if (pokemon.getEntity() != null) {
+      var entity = pokemon.getEntity();
+      if (entity.isAiDisabled() || entity.isUncatchable()) return false;
+    }
     if (CobbleNotify.config.getGlobalBlackList().isBlackListed(pokemon)) return false;
     if (useProperties) {
       return PokemonProperties.Companion.parse(properties).matches(pokemon);
@@ -133,6 +137,7 @@ public class Notification {
    * Compute the spawn notification
    *
    * @param pokemonEntity The spawned Pokemon entity
+   *
    * @return true if a notification was sent
    */
   public boolean computeSpawn(PokemonEntity pokemonEntity) {
@@ -184,6 +189,7 @@ public class Notification {
    * @param pokemon1 Pokemon 1 of the trade
    * @param player2  Player 2 of the trade
    * @param pokemon2 Pokemon 2 of the trade
+   *
    * @return true if a notification was sent
    */
   public boolean computeTrade(Pokemon pokemon1, Pokemon pokemon2, ServerPlayerEntity player1,
