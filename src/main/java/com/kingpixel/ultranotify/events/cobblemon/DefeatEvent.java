@@ -20,7 +20,7 @@ public class DefeatEvent {
         if (UltraNotify.config.getWorldFilter().isBlackListed(killer.getServerWorld())) return;
         for (Notification notification : Notifications.NOTIFICATIONS) {
           if (notification.getWorldFilter().isBlackListed(killer.getServerWorld())) continue;
-          if (notification.computeDefeat(killed, killer)) return;
+          if (notification.computeDefeat(killed, killer, evt.getKilled().getEntity())) return;
         }
       } catch (Exception e) {
         e.printStackTrace();

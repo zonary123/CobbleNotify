@@ -27,6 +27,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Box;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
@@ -73,11 +74,8 @@ public class Notification {
       webHookOptions.setWebHookMessages(new WebHookMessages());
   }
 
-  public boolean isValid(Pokemon pokemon) {
-    if (pokemon.getEntity() != null) {
-      var entity = pokemon.getEntity();
-      if (entity.isAiDisabled() || entity.isUncatchable()) return false;
-    }
+  public boolean isValid(Pokemon pokemon, @Nullable PokemonEntity entity) {
+    if (entity != null) if (entity.isAiDisabled() || entity.isUncatchable()) return false;
     if (UltraNotify.config.getGlobalBlackList().isBlackListed(pokemon)) return false;
     if (useProperties) {
       return PokemonProperties.Companion.parse(properties).matches(pokemon);
@@ -85,7 +83,7 @@ public class Notification {
   }
 
   public boolean computeCaught(Pokemon pokemon, ServerPlayerEntity player) {
-    if (!isValid(pokemon)) return false;
+    if (!isValid(pokemon, null)) return false;
     boolean notified = false;
     // Send Message notification
     if (notificationOptions.isCaught() && !NotificationUtils.playerIsVanish(player)) {
@@ -114,9 +112,9 @@ public class Notification {
     return notified;
   }
 
-  public boolean computeDefeat(Pokemon pokemon, ServerPlayerEntity player) {
+  public boolean computeDefeat(Pokemon pokemon, ServerPlayerEntity player, PokemonEntity entity) {
     if (!pokemon.isWild()) return false;
-    if (!isValid(pokemon)) return false;
+    if (!isValid(pokemon, entity)) return false;
     boolean notified = false;
     // Send Message notification
     if (notificationOptions.isDefeat()) {
@@ -143,7 +141,7 @@ public class Notification {
   public boolean computeSpawn(PokemonEntity pokemonEntity) {
     Pokemon pokemon = pokemonEntity.getPokemon();
     if (!pokemon.isWild() || pokemonEntity.isPersistent()) return false;
-    if (!isValid(pokemon)) return false;
+    if (!isValid(pokemon, pokemonEntity)) return false;
     // Send Message notification
     Box boundingBox = pokemonEntity.getBoundingBox().expand(64);
     var players = pokemonEntity.getEntityWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), boundingBox, p -> true);
@@ -194,7 +192,7 @@ public class Notification {
    */
   public boolean computeTrade(Pokemon pokemon1, Pokemon pokemon2, ServerPlayerEntity player1,
                               ServerPlayerEntity player2) {
-    if (!isValid(pokemon1) && !isValid(pokemon2)) return false;
+    if (!isValid(pokemon1, null) && !isValid(pokemon2, null)) return false;
     boolean notified = false;
     // Send Message notificationç
     if (notificationOptions.isTrade()) {
