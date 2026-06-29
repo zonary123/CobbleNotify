@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+- Notifications for uncatchable Pokémon or those without an AI have been disabled to prevent notification clutter.
 - Fixed default configuration.
 
 ## [1.1.5] - 18-01-2026
