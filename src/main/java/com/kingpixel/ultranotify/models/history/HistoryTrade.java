@@ -1,0 +1,76 @@
+package com.kingpixel.ultranotify.models.history;
+
+import ca.landonjw.gooeylibs2.api.button.GooeyButton;
+import com.cobblemon.mod.common.item.PokemonItem;
+import com.cobblemon.mod.common.pokemon.Pokemon;
+import com.kingpixel.cobbleutils.util.AdventureTranslator;
+import com.kingpixel.cobbleutils.util.PokemonUtils;
+import com.kingpixel.cobbleutils.util.Utils;
+import com.kingpixel.ultranotify.UltraNotify;
+import com.kingpixel.ultranotify.models.Notification;
+import lombok.Data;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LoreComponent;
+import net.minecraft.server.network.ServerPlayerEntity;
+import org.bson.Document;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * @author Carlos Varas Alonso - 07/12/2025 21:35
+ */
+@Data
+public class HistoryTrade {
+  private UUID identifier = UUID.randomUUID();
+  private String notificationId;
+  private UUID trader1Id;
+  private String trader1;
+  private Pokemon pokemon1;
+  private UUID trader2Id;
+  private String trader2;
+  private Pokemon pokemon2;
+  private Instant tradeTime = Instant.now();
+
+
+  public HistoryTrade(Pokemon poke1, Pokemon poke2, ServerPlayerEntity player1,
+                      ServerPlayerEntity player2, Notification notification) {
+    this.trader1 = player1.getGameProfile().getName();
+    this.trader1Id = player1.getUuid();
+    this.pokemon1 = poke1;
+    this.trader2 = player2.getGameProfile().getName();
+    this.trader2Id = player2.getUuid();
+    this.pokemon2 = poke2;
+    this.notificationId = notification.getIdentifier();
+  }
+
+
+  // Convert to MongoDB Document
+  public Document toDocument() {
+    return Document.parse(Utils.newWithoutSpacingGson().toJson(this, HistoryTrade.class));
+  }
+
+  public static HistoryTrade fromDocument(Document document) {
+    return Utils.newWithoutSpacingGson().fromJson(document.toJson(), HistoryTrade.class);
+  }
+
+  public GooeyButton toButton() {
+    List<String> lore = new ArrayList<>(UltraNotify.lang.getTradeLore());
+    lore.replaceAll(s -> s.replace("%trader%", trader1)
+      .replace("%offeredPokemon%", PokemonUtils.getTranslatedName(pokemon1))
+      .replace("%receiver%", trader2)
+      .replace("%receivedPokemon%", PokemonUtils.getTranslatedName(pokemon2)));
+    return GooeyButton.builder()
+      .display(PokemonItem.from(pokemon1))
+      .with(DataComponentTypes.LORE, new LoreComponent(
+        AdventureTranslator.toNativeL(
+          PokemonUtils.replace(lore, pokemon1)
+        )
+      ))
+      .build();
+  }
+
+
+}

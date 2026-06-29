@@ -13,7 +13,7 @@
   "environment": "server",
   "entrypoints": {
     "main": [
-      "com.kingpixel.cobblenotify.CobbleNotify"
+      "com.kingpixel.ultranotify.UltraNotify"
     ]
   },
   "mixins": [
