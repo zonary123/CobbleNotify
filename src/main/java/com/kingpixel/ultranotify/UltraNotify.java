@@ -35,6 +35,7 @@ public class UltraNotify implements ModInitializer {
   );
 
   @Override public void onInitialize() {
+    
     events();
   }
 

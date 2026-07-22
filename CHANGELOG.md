@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.7] - 22-07-2026
+
+### Optimizations
+
+- Optimized spawn notifications to reduce server load when checking spawning Pokémon.
+
 ## [1.1.6] - 26-06-2026
 
 ### Bug Fixes

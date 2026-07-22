@@ -61,29 +61,50 @@ public class Notification {
   }
 
   public void check() {
-    if (identifier == null || identifier.isBlank()) identifier = "notification";
-    if (properties == null || properties.isBlank()) properties = "shiny=true";
-    if (icon == null) icon = new ItemModel("minecraft:paper", "§e" + identifier);
-    if (worldFilter == null) worldFilter = new WorldFilter();
-    if (filter == null) filter = PokemonBlackList.createBlackList();
-    if (notificationOptions == null) notificationOptions = new NotificationOptions();
+    if (identifier == null || identifier.isBlank())
+      identifier = "notification";
+    if (properties == null || properties.isBlank())
+      properties = "shiny=true";
+    if (icon == null)
+      icon = new ItemModel("minecraft:paper", "§e" + identifier);
+    if (worldFilter == null)
+      worldFilter = new WorldFilter();
+    if (filter == null)
+      filter = PokemonBlackList.createBlackList();
+    if (notificationOptions == null)
+      notificationOptions = new NotificationOptions();
     if (notificationOptions.getNotificationMessages() == null)
       notificationOptions.setNotificationMessages(new NotificationMessages());
-    if (webHookOptions == null) webHookOptions = new WebHookOptions();
+    if (webHookOptions == null)
+      webHookOptions = new WebHookOptions();
     if (webHookOptions.getWebHookMessages() == null)
       webHookOptions.setWebHookMessages(new WebHookMessages());
   }
 
+  private transient PokemonProperties parsedProperties;
+
+  public void setProperties(String properties) {
+    this.properties = properties;
+    this.parsedProperties = null;
+  }
+
   public boolean isValid(Pokemon pokemon, @Nullable PokemonEntity entity) {
-    if (entity != null) if (entity.isAiDisabled() || entity.isUncatchable()) return false;
-    if (UltraNotify.config.getGlobalBlackList().isBlackListed(pokemon)) return false;
+    if (entity != null && (entity.isAiDisabled() || entity.isUncatchable()))
+      return false;
+    if (UltraNotify.config.getGlobalBlackList().isBlackListed(pokemon))
+      return false;
     if (useProperties) {
-      return PokemonProperties.Companion.parse(properties).matches(pokemon);
-    } else return filter.isBlackListed(pokemon);
+      if (parsedProperties == null) {
+        parsedProperties = PokemonProperties.Companion.parse(properties);
+      }
+      return parsedProperties.matches(pokemon);
+    } else
+      return filter.isBlackListed(pokemon);
   }
 
   public boolean computeCaught(Pokemon pokemon, ServerPlayerEntity player) {
-    if (!isValid(pokemon, null)) return false;
+    if (!isValid(pokemon, null))
+      return false;
     boolean notified = false;
     // Send Message notification
     if (notificationOptions.isCaught() && !NotificationUtils.playerIsVanish(player)) {
@@ -91,30 +112,33 @@ public class Notification {
       var message = messages.getCatchMessage();
       var content = message.getRawMessage();
       content = replaceVariables(
-        pokemon.getEntity(), pokemon, PokemonUtils.replace(
-          content
-            .replace("%player%", player.getGameProfile().getName()),
-          pokemon
-        )
-      );
+          pokemon.getEntity(), pokemon, PokemonUtils.replace(
+              content
+                  .replace("%player%", player.getGameProfile().getName()),
+              pokemon));
       message.sendMessage((UUID) null, content, UltraNotify.lang.getPrefix(), false);
       notified = true;
     }
     // Send WebHook notification
     notified |= webHookOptions.sendMessage(Actions.CAUGHT, List.of(pokemon), player, null);
-    if (UltraNotify.databaseClient == null) return notified;
-    if (notified) UltraNotify.runAsync(() -> {
-      var history = UltraNotify.databaseClient.getSpawnedPokemonById(pokemon.getUuid());
-      if (history == null) return;
-      history.caught(player);
-      UltraNotify.databaseClient.updateHistorySpawn(history);
-    });
+    if (UltraNotify.databaseClient == null)
+      return notified;
+    if (notified)
+      UltraNotify.runAsync(() -> {
+        var history = UltraNotify.databaseClient.getSpawnedPokemonById(pokemon.getUuid());
+        if (history == null)
+          return;
+        history.caught(player);
+        UltraNotify.databaseClient.updateHistorySpawn(history);
+      });
     return notified;
   }
 
   public boolean computeDefeat(Pokemon pokemon, ServerPlayerEntity player, PokemonEntity entity) {
-    if (!pokemon.isWild()) return false;
-    if (!isValid(pokemon, entity)) return false;
+    if (!pokemon.isWild())
+      return false;
+    if (!isValid(pokemon, entity))
+      return false;
     boolean notified = false;
     // Send Message notification
     if (notificationOptions.isDefeat()) {
@@ -122,7 +146,7 @@ public class Notification {
       var message = messages.getDefeatMessage();
       var content = message.getRawMessage();
       content = replaceVariables(pokemon.getEntity(), pokemon, PokemonUtils.replace(content, pokemon))
-        .replace("%player%", player.getGameProfile().getName());
+          .replace("%player%", player.getGameProfile().getName());
       message.sendMessage((UUID) null, content, UltraNotify.lang.getPrefix(), false);
       notified = true;
     }
@@ -140,14 +164,17 @@ public class Notification {
    */
   public boolean computeSpawn(PokemonEntity pokemonEntity) {
     Pokemon pokemon = pokemonEntity.getPokemon();
-    if (!pokemon.isWild() || pokemonEntity.isPersistent()) return false;
-    if (!isValid(pokemon, pokemonEntity)) return false;
+    if (!pokemon.isWild() || pokemonEntity.isPersistent())
+      return false;
+    if (!isValid(pokemon, pokemonEntity))
+      return false;
     // Send Message notification
     Box boundingBox = pokemonEntity.getBoundingBox().expand(64);
-    var players = pokemonEntity.getEntityWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), boundingBox, p -> true);
+    var players = pokemonEntity.getEntityWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class),
+        boundingBox, p -> true);
     var visiblePlayers = players.stream()
-      .filter(p -> !p.isSpectator() && !NotificationUtils.playerIsVanish((ServerPlayerEntity) p))
-      .toList();
+        .filter(p -> !p.isSpectator() && !NotificationUtils.playerIsVanish((ServerPlayerEntity) p))
+        .toList();
     boolean notified = false;
     if (notificationOptions.isSpawn() && (players.isEmpty() || !visiblePlayers.isEmpty())) {
       var messages = notificationOptions.getNotificationMessages();
@@ -155,14 +182,14 @@ public class Notification {
       var content = message.getRawMessage();
       content = replaceVariables(pokemonEntity, pokemon, PokemonUtils.replace(content, pokemon));
       String nearestPlayers = String.join(", ", visiblePlayers.stream()
-        .map(PlayerEntity::getGameProfile)
-        .map(GameProfile::getName)
-        .toList());
+          .map(PlayerEntity::getGameProfile)
+          .map(GameProfile::getName)
+          .toList());
       String nearest = nearestPlayers.isBlank() ? "none" : nearestPlayers;
       String playerName = visiblePlayers.isEmpty() ? "Unknown" : visiblePlayers.getFirst().getGameProfile().getName();
       content = content
-        .replace("%nearest%", nearest)
-        .replace("%player%", playerName);
+          .replace("%nearest%", nearest)
+          .replace("%player%", playerName);
       UUID playerUUID = visiblePlayers.isEmpty() ? null : visiblePlayers.getFirst().getGameProfile().getId();
       message.sendMessage(playerUUID, content, UltraNotify.lang.getPrefix(), false);
       notified = true;
@@ -170,12 +197,13 @@ public class Notification {
     // Send WebHook notification
     notified |= webHookOptions.sendMessage(Actions.SPAWN, List.of(pokemon), null, pokemonEntity);
     // Save to database
-    if (UltraNotify.databaseClient == null) return notified;
+    if (UltraNotify.databaseClient == null)
+      return notified;
     if (notified) {
-      if (pokemon.getLevel() > Cobblemon.INSTANCE.getConfig().getMaxPokemonLevel()) return notified;
+      if (pokemon.getLevel() > Cobblemon.INSTANCE.getConfig().getMaxPokemonLevel())
+        return notified;
       UltraNotify.runAsync(() -> UltraNotify.databaseClient.addSpawnedPokemon(new HistorySpawn(pokemonEntity,
-        players, this))
-      );
+          players, this)));
     }
     return notified;
   }
@@ -191,8 +219,9 @@ public class Notification {
    * @return true if a notification was sent
    */
   public boolean computeTrade(Pokemon pokemon1, Pokemon pokemon2, ServerPlayerEntity player1,
-                              ServerPlayerEntity player2) {
-    if (!isValid(pokemon1, null) && !isValid(pokemon2, null)) return false;
+      ServerPlayerEntity player2) {
+    if (!isValid(pokemon1, null) && !isValid(pokemon2, null))
+      return false;
     boolean notified = false;
     // Send Message notificationç
     if (notificationOptions.isTrade()) {
@@ -209,7 +238,8 @@ public class Notification {
     notified |= webHookOptions.sendMessage(Actions.TRADE, List.of(pokemon1, pokemon2), null, null);
     // Save to database
     if (notified) {
-      if (UltraNotify.databaseClient == null) return notified;
+      if (UltraNotify.databaseClient == null)
+        return notified;
       HistoryTrade historyTrade = new HistoryTrade(pokemon1, pokemon2, player1, player2, this);
       UltraNotify.runAsync(() -> UltraNotify.databaseClient.addTradeHistory(historyTrade));
     }
@@ -234,20 +264,19 @@ public class Notification {
 
     message = message.replace("%server%", CobbleUtils.config.getServer());
 
-
     // Pokemon variables
     Nature nature = pokemon.getNature();
     message = message
-      .replace("%pokemon%", pokemon.showdownId())
-      .replace("%types%", getTypes(pokemon))
-      .replace("%ability%", pokemon.getAbility().getName())
-      .replace("%up%", nature.getIncreasedStat() == null ? "" : nature.getIncreasedStat().getShowdownId())
-      .replace("%down%", nature.getDecreasedStat() == null ? "" : nature.getDecreasedStat().getShowdownId())
-      .replace("%nature%", pokemon.getNature().getDisplayName())
-      .replace("%move1%", getMove(0, pokemon))
-      .replace("%move2%", getMove(1, pokemon))
-      .replace("%move3%", getMove(2, pokemon))
-      .replace("%move4%", getMove(3, pokemon));
+        .replace("%pokemon%", pokemon.showdownId())
+        .replace("%types%", getTypes(pokemon))
+        .replace("%ability%", pokemon.getAbility().getName())
+        .replace("%up%", nature.getIncreasedStat() == null ? "" : nature.getIncreasedStat().getShowdownId())
+        .replace("%down%", nature.getDecreasedStat() == null ? "" : nature.getDecreasedStat().getShowdownId())
+        .replace("%nature%", pokemon.getNature().getDisplayName())
+        .replace("%move1%", getMove(0, pokemon))
+        .replace("%move2%", getMove(1, pokemon))
+        .replace("%move3%", getMove(2, pokemon))
+        .replace("%move4%", getMove(3, pokemon));
     return message;
   }
 
