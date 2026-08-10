@@ -15,8 +15,11 @@ public class DefeatEvent {
       try {
         var battle = evt.getBattle();
         if (!battle.isPvW()) return;
+        var players = battle.getPlayers();
+        if (players.isEmpty()) return;
         var killed = evt.getKilled().getOriginalPokemon();
-        var killer = evt.getBattle().getPlayers().getFirst();
+        var killer = players.getFirst();
+        if (killer == null) return;
         if (UltraNotify.config.getWorldFilter().isBlackListed(killer.getServerWorld())) return;
         for (Notification notification : Notifications.NOTIFICATIONS) {
           if (notification.getWorldFilter().isBlackListed(killer.getServerWorld())) continue;

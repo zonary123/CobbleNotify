@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.8] - 11-08-2026
+
+### Bug Fixes
+
+- Fixed `NoSuchElementException` in `DefeatEvent` when checking player actions in battles without active player participants.
+
 ## [1.1.7] - 22-07-2026
 
 ### Optimizations
