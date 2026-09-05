@@ -8,6 +8,8 @@ import com.kingpixel.ultranotify.config.Notifications;
 import com.kingpixel.ultranotify.database.DataBaseClient;
 import com.kingpixel.ultranotify.database.DataBaseFactory;
 import com.kingpixel.ultranotify.events.Events;
+import com.kingpixel.cobbleutils.util.async.AsyncContext;
+import java.util.concurrent.TimeUnit;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import net.fabricmc.api.ModInitializer;
@@ -28,11 +30,13 @@ public class UltraNotify implements ModInitializer {
   public static Lang lang = new Lang();
   public static Config config = new Config();
   public static DataBaseClient databaseClient;
-  private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(2, new ThreadFactoryBuilder()
-    .setDaemon(true)
-    .setNameFormat(MOD_NAME + "-Executor-%d")
-    .build()
-  );
+  private static final AsyncContext asyncContext = new AsyncContext(MOD_NAME, 2, 6, 500, 30, TimeUnit.SECONDS);
+
+  public static AsyncContext getAsyncContext() {
+    return asyncContext;
+  }
+
+  private static final ExecutorService EXECUTOR_SERVICE = asyncContext.getExecutor();
 
   @Override public void onInitialize() {
     

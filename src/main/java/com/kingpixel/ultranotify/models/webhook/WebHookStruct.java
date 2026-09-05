@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Data
 public class WebHookStruct {
-  public static final ExecutorService WEBHOOK_EXECUTOR = Executors.newFixedThreadPool(2);
+  public static final ExecutorService WEBHOOK_EXECUTOR = UltraNotify.getAsyncContext().getExecutor();
   private String color;
   private String title;
   private String titleUrl;

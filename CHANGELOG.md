@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.9] - 2026-09-05
+
+### Changed
+
+- **Async & Webhook Performance**: Migrated Discord webhook dispatchers and notification workers to CobbleUtils `AsyncContext` with daemon threads.
+
 ## [1.1.8] - 11-08-2026
 
 ### Bug Fixes
