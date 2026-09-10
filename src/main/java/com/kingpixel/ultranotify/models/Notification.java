@@ -25,10 +25,13 @@ import com.mojang.authlib.GameProfile;
 import lombok.Data;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Box;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -145,13 +148,14 @@ public class Notification {
       var messages = notificationOptions.getNotificationMessages();
       var message = messages.getDefeatMessage();
       var content = message.getRawMessage();
-      content = replaceVariables(pokemon.getEntity(), pokemon, PokemonUtils.replace(content, pokemon))
+      PokemonEntity entityToUse = entity != null ? entity : pokemon.getEntity();
+      content = replaceVariables(entityToUse, pokemon, PokemonUtils.replace(content, pokemon))
           .replace("%player%", player.getGameProfile().getName());
       message.sendMessage((UUID) null, content, UltraNotify.lang.getPrefix(), false);
       notified = true;
     }
     // Send WebHook notification
-    notified |= webHookOptions.sendMessage(Actions.DEFEAT, List.of(pokemon), player, null);
+    notified |= webHookOptions.sendMessage(Actions.DEFEAT, List.of(pokemon), player, entity != null ? entity : pokemon.getEntity());
     return notified;
   }
 
@@ -168,15 +172,13 @@ public class Notification {
       return false;
     if (!isValid(pokemon, pokemonEntity))
       return false;
-    // Send Message notification
-    Box boundingBox = pokemonEntity.getBoundingBox().expand(64);
-    var players = pokemonEntity.getEntityWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class),
-        boundingBox, p -> true);
-    var visiblePlayers = players.stream()
-        .filter(p -> !p.isSpectator() && !NotificationUtils.playerIsVanish((ServerPlayerEntity) p))
-        .toList();
+
+    List<ServerPlayerEntity> visiblePlayers = resolveNearbyPlayers(pokemonEntity);
+    ServerPlayerEntity closestPlayer = visiblePlayers.isEmpty() ? null : visiblePlayers.getFirst();
+    String playerName = closestPlayer != null ? closestPlayer.getGameProfile().getName() : "Unknown";
+
     boolean notified = false;
-    if (notificationOptions.isSpawn() && (players.isEmpty() || !visiblePlayers.isEmpty())) {
+    if (notificationOptions.isSpawn()) {
       var messages = notificationOptions.getNotificationMessages();
       var message = messages.getSpawnMessage();
       var content = message.getRawMessage();
@@ -186,26 +188,61 @@ public class Notification {
           .map(GameProfile::getName)
           .toList());
       String nearest = nearestPlayers.isBlank() ? "none" : nearestPlayers;
-      String playerName = visiblePlayers.isEmpty() ? "Unknown" : visiblePlayers.getFirst().getGameProfile().getName();
       content = content
           .replace("%nearest%", nearest)
           .replace("%player%", playerName);
-      UUID playerUUID = visiblePlayers.isEmpty() ? null : visiblePlayers.getFirst().getGameProfile().getId();
+      UUID playerUUID = closestPlayer != null ? closestPlayer.getGameProfile().getId() : null;
       message.sendMessage(playerUUID, content, UltraNotify.lang.getPrefix(), false);
       notified = true;
     }
     // Send WebHook notification
-    notified |= webHookOptions.sendMessage(Actions.SPAWN, List.of(pokemon), null, pokemonEntity);
+    notified |= webHookOptions.sendMessage(Actions.SPAWN, List.of(pokemon), closestPlayer, pokemonEntity);
     // Save to database
     if (UltraNotify.databaseClient == null)
       return notified;
     if (notified) {
       if (pokemon.getLevel() > Cobblemon.INSTANCE.getConfig().getMaxPokemonLevel())
         return notified;
+      List<PlayerEntity> playersForHistory = new ArrayList<>(visiblePlayers);
       UltraNotify.runAsync(() -> UltraNotify.databaseClient.addSpawnedPokemon(new HistorySpawn(pokemonEntity,
-          players, this)));
+          playersForHistory, this)));
     }
     return notified;
+  }
+
+  private List<ServerPlayerEntity> resolveNearbyPlayers(PokemonEntity pokemonEntity) {
+    List<ServerPlayerEntity> visiblePlayers = new ArrayList<>();
+    if (pokemonEntity.getEntityWorld() instanceof ServerWorld serverWorld) {
+      addValidPlayers(serverWorld.getPlayers(), pokemonEntity, 64.0 * 64.0, visiblePlayers);
+      if (visiblePlayers.isEmpty()) {
+        addValidPlayers(serverWorld.getPlayers(), pokemonEntity, 128.0 * 128.0, visiblePlayers);
+      }
+    }
+
+    if (visiblePlayers.isEmpty()) {
+      Box boundingBox = pokemonEntity.getBoundingBox().expand(64);
+      var boxPlayers = pokemonEntity.getEntityWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class),
+          boundingBox, p -> true);
+      for (PlayerEntity p : boxPlayers) {
+        if (isValidPlayer(p)) {
+          visiblePlayers.add((ServerPlayerEntity) p);
+        }
+      }
+    }
+    visiblePlayers.sort(Comparator.comparingDouble(p -> p.squaredDistanceTo(pokemonEntity)));
+    return visiblePlayers;
+  }
+
+  private static void addValidPlayers(List<ServerPlayerEntity> source, PokemonEntity pokemonEntity, double maxDistSq, List<ServerPlayerEntity> target) {
+    for (ServerPlayerEntity p : source) {
+      if (isValidPlayer(p) && p.squaredDistanceTo(pokemonEntity) <= maxDistSq) {
+        target.add(p);
+      }
+    }
+  }
+
+  private static boolean isValidPlayer(PlayerEntity p) {
+    return p instanceof ServerPlayerEntity sp && !sp.isSpectator() && !NotificationUtils.playerIsVanish(sp);
   }
 
   /**

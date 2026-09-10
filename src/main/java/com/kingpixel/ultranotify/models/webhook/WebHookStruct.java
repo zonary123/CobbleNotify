@@ -68,25 +68,30 @@ public class WebHookStruct {
     this.footer = footer;
   }
 
-  public void sendMessage(List<String> modifiedDescription, Pokemon pokemon) {
+  public void sendMessage(String modifiedTitle, List<String> modifiedDescription, String modifiedFooter, Pokemon pokemon) {
     var webHookData = UltraNotify.config.getWebHookData();
     if (!webHookData.isENABLED()) return;
     var client = webHookData.getWebhookClient();
     String gif = com.kingpixel.cobbleutils.Model.discord.WebHookStruct.getGif(pokemon);
     String hexColor = color.startsWith("#") ? color : "#" + color;
+    String displayTitle = modifiedTitle != null ? modifiedTitle : title;
+    String displayFooter = modifiedFooter != null ? modifiedFooter : footer;
     var message = new WebhookMessageBuilder()
       .addEmbeds(
         new WebhookEmbedBuilder()
-          .setTitle(new WebhookEmbed.EmbedTitle(title, titleUrl))
+          .setTitle(new WebhookEmbed.EmbedTitle(displayTitle, titleUrl))
           .setColor(Color.decode(hexColor).getRGB() & 0xFFFFFF)
           .setThumbnailUrl(gif)
           .setDescription(String.join("\n", modifiedDescription))
-          .setFooter(new WebhookEmbed.EmbedFooter(footer, gif))
+          .setFooter(new WebhookEmbed.EmbedFooter(displayFooter, gif))
           .build()
       )
       .build();
     client.send(message);
+  }
 
+  public void sendMessage(List<String> modifiedDescription, Pokemon pokemon) {
+    sendMessage(title, modifiedDescription, footer, pokemon);
   }
 
   public static void runAsync(Runnable runnable) {

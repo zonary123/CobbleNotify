@@ -40,15 +40,33 @@ public class WebHookOptions {
       WebHookStruct.runAsync(() -> {
         WebHookStruct message = getMessage(action);
         Pokemon pokemon = pokemons.getFirst();
+        String playerName = player != null ? player.getGameProfile().getName() : "Unknown";
+
         List<String> description = new ArrayList<>(message.getDescription());
         String descriptionJoined = String.join("\n", description);
-        descriptionJoined = descriptionJoined.replace("%player%", player != null ? player.getGameProfile().getName() : "Unknown");
-        descriptionJoined = Notification.replaceVariables(pokemonEntity, pokemon, descriptionJoined);
-        descriptionJoined = PokemonUtils.replace(descriptionJoined, pokemons);
-        message.sendMessage(List.of(replace(descriptionJoined)), pokemon);
+        descriptionJoined = formatPlaceholders(descriptionJoined, playerName, pokemonEntity, pokemon, pokemons);
+
+        String formattedTitle = formatPlaceholders(message.getTitle(), playerName, pokemonEntity, pokemon, pokemons);
+        String formattedFooter = formatPlaceholders(message.getFooter(), playerName, pokemonEntity, pokemon, pokemons);
+
+        message.sendMessage(
+            replace(formattedTitle),
+            List.of(replace(descriptionJoined)),
+            replace(formattedFooter),
+            pokemon
+        );
       });
     }
     return active;
+  }
+
+  private String formatPlaceholders(String text, String playerName, @Nullable PokemonEntity pokemonEntity, Pokemon pokemon, List<Pokemon> pokemons) {
+    if (text == null || text.isBlank()) return text;
+    text = text.replace("%player%", playerName);
+    text = text.replace("%nearest%", playerName);
+    text = Notification.replaceVariables(pokemonEntity, pokemon, text);
+    text = PokemonUtils.replace(text, pokemons);
+    return text;
   }
 
   private boolean isActive(Actions action) {
@@ -75,6 +93,7 @@ public class WebHookOptions {
   );
 
   private String replace(String content) {
+    if (content == null) return null;
     return REGEX_KYORI.matcher(content).replaceAll("");
   }
 

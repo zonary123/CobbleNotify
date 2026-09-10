@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.10] - 2026-09-06
+
+### Changed
+
+- **Cobblemon 1.8.0 Compatibility**: Updated compatibility and dependencies to support Cobblemon 1.8.0 (Minecraft 1.21.1).
+
+### Fixed
+
+- Battle defeat notifications incorrectly triggering when player-owned shiny Pokémon faint in PvW battles (now strictly verifies `ActorType.WILD`).
+- Spawn notifications displaying `%player%` literally instead of the nearest player's name across in-game chat and Discord webhook embeds (title, description, and footer).
+
 ## [1.1.9] - 2026-09-05
 
 ### Changed
