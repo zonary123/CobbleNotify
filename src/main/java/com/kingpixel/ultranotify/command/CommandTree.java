@@ -1,7 +1,9 @@
 package com.kingpixel.ultranotify.command;
 
+import com.kingpixel.cobbleutils.util.AdventureTranslator;
 import com.kingpixel.cobbleutils.util.LuckPermsUtil;
 import com.kingpixel.ultranotify.UltraNotify;
+import com.kingpixel.ultranotify.api.ui.NotifyMenuRegistry;
 import com.kingpixel.ultranotify.command.base.CaughtCommand;
 import com.kingpixel.ultranotify.command.base.SpawnCommand;
 import com.kingpixel.ultranotify.command.base.TradeCommand;
@@ -9,7 +11,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
 
 /**
  * @author Carlos Varas Alonso - 25/05/2024 19:35
@@ -26,16 +27,17 @@ public class CommandTree {
       .executes(context -> {
         if (!context.getSource().isExecutedByPlayer()) return 1;
         var player = context.getSource().getPlayer();
-        UltraNotify.lang.getGlobalGui().open(player);
+        NotifyMenuRegistry.openMainMenu(player);
         return 1;
       })
       .then(CommandManager.literal("reload")
         .requires(source -> LuckPermsUtil.checkPermission(source, 2, "ultranotify.admin"))
         .executes(context -> {
           UltraNotify.load();
-          context.getSource().sendMessage(
-            Text.literal("CobbleNotify configuration reloaded!")
-          );
+          String reloadMsg = UltraNotify.lang.getMessageReload() != null
+            ? UltraNotify.lang.getMessageReload().replace("%prefix%", UltraNotify.lang.getPrefix())
+            : UltraNotify.lang.getPrefix();
+          context.getSource().sendMessage(AdventureTranslator.toNative(reloadMsg));
           return 1;
         })
       );

@@ -8,12 +8,13 @@ import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.ultranotify.UltraNotify;
 import lombok.Data;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import static com.kingpixel.cobbleutils.Model.discord.WebHookStruct.getGif;
 
 /**
  * @author Carlos Varas Alonso - 24/11/2025 4:17
@@ -72,7 +73,7 @@ public class WebHookStruct {
     var webHookData = UltraNotify.config.getWebHookData();
     if (!webHookData.isENABLED()) return;
     var client = webHookData.getWebhookClient();
-    String gif = com.kingpixel.cobbleutils.Model.discord.WebHookStruct.getGif(pokemon);
+    String gif = getGif(pokemon);
     String hexColor = color.startsWith("#") ? color : "#" + color;
     String displayTitle = modifiedTitle != null ? modifiedTitle : title;
     String displayFooter = modifiedFooter != null ? modifiedFooter : footer;

@@ -17,6 +17,7 @@ import java.util.List;
 @Data
 public class Lang {
   private String prefix = "&6[&bCobbleNotify&6]&r";
+  private String messageReload = "%prefix% &aConfiguration reloaded!";
   private List<String> spawnLore = List.of(
     "%lorepokemon%",
     "&7Spawn Time: %spawnTime%",

@@ -45,45 +45,100 @@ jobs:
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
       - name: Build mod
-        run: ./gradlew build remapJar --no-daemon
+        run: ./gradlew build remapJar apiJar --no-daemon
 
       - name: Create GitHub Release
         run: |
+          # Extraer changelog
+          CHANGELOG_CONTENT=$(tr -d '\r' < CHANGELOG.md | awk '
+            /^## \[/ {
+              if (flag) exit;
+              flag = 1;
+              next;
+            }
+            flag { print }
+          ')
+          if [ -z "$(echo "$CHANGELOG_CONTENT" | tr -d '[:space:]')" ]; then
+            CHANGELOG_CONTENT="Automated release for version $TAG"
+          fi
+
+          echo "$CHANGELOG_CONTENT" > /tmp/release_notes.md
           gh release create "$TAG" build/libs/*.jar \
             --title "Release $TAG" \
-            --notes "Automated release for version $TAG"
+            --notes-file /tmp/release_notes.md
 
-      - name: Send Discord Notification with Embed and File
+      - name: Send Discord Notification with Embed and Files
         run: |
-          FILE=$(ls build/libs/*.jar | grep -v "sources" | head -n1)
-          
+          # Limpiar y sanitizar URL del webhook
+          WEBHOOK_URL=$(echo "${DISCORD_WEBHOOK_URL:-}" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+
+          if [ -z "$WEBHOOK_URL" ] || [[ ! "$WEBHOOK_URL" =~ ^https?:// ]]; then
+            echo "⚠️ DISCORD_WEBHOOK_URL no está configurado o no es una URL válida. Omitiendo notificación de Discord."
+            exit 0
+          fi
+
           # Extraer changelog
-          BASE=$(echo "$TAG" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-          CHANGELOG_CONTENT=$(tr -d '\r' < CHANGELOG.md | awk -v ver="$BASE" '
-            $0 ~ "## \\[" ver "\\]" {flag=1; next}
-            /^## \[/ && flag {flag=0}
-            flag {print}
+          CHANGELOG_CONTENT=$(tr -d '\r' < CHANGELOG.md | awk '
+            /^## \[/ {
+              if (flag) exit;
+              flag = 1;
+              next;
+            }
+            flag { print }
           ')
-          
-          # Generar JSON embed correctamente escapado
-          JSON_PAYLOAD=$(jq -nc --arg tag "$TAG" --arg changelog "$CHANGELOG_CONTENT" \
-            '{content: "@everyone 🎉 New Release!", embeds:[{title:("Release "+$tag), description:$changelog, color:3066993}]}')
-          
+          if [ -z "$(echo "$CHANGELOG_CONTENT" | tr -d '[:space:]')" ]; then
+            CHANGELOG_CONTENT="Automated release for version $TAG"
+          fi
+
+          CHANGELOG_LEN=${#CHANGELOG_CONTENT}
+          UPLOAD_MD=false
+
+          # Si el changelog excede el límite de descripción de Discord (4096 caracteres, usamos umbral seguro de 3500)
+          if [ "$CHANGELOG_LEN" -gt 3500 ]; then
+            echo "Changelog length ($CHANGELOG_LEN) exceeds Discord limit. Generating CHANGELOG-${TAG}.md file..."
+            echo "$CHANGELOG_CONTENT" > "CHANGELOG-${TAG}.md"
+            UPLOAD_MD=true
+            EMBED_DESC="${CHANGELOG_CONTENT:0:1500}...\n\n📄 **El changelog completo excede el límite de Discord y se adjunta en el archivo CHANGELOG-${TAG}.md.**"
+          else
+            EMBED_DESC="$CHANGELOG_CONTENT"
+          fi
+
+          # Generar JSON embed seguro
+          jq -nc --arg tag "$TAG" --arg changelog "$EMBED_DESC" \
+            '{content: "@everyone 🎉 New Release!", embeds:[{title:("Release "+$tag), description:$changelog, color:3066993}]}' > /tmp/discord_embed.json
+
           echo "Embed JSON:"
-          echo "$JSON_PAYLOAD"
-          
-          # 1️⃣ Enviar primero el embed
-          curl -s -X POST "$DISCORD_WEBHOOK_URL" \
+          cat /tmp/discord_embed.json
+
+          # 1️⃣ Enviar el embed a Discord
+          curl -s -X POST "$WEBHOOK_URL" \
             -H "Content-Type: application/json" \
-            -d "$JSON_PAYLOAD"
-          
-          # 2️⃣ Enviar después el archivo como segundo mensaje
-          curl -s -X POST "$DISCORD_WEBHOOK_URL" \
-            -F "file=@${FILE}"
+            -d @/tmp/discord_embed.json || echo "Warning: Failed to send Discord embed notification"
+
+          # 2️⃣ Si el changelog es largo, enviar el archivo .md
+          if [ "$UPLOAD_MD" = true ] && [ -f "CHANGELOG-${TAG}.md" ]; then
+            echo "Uploading CHANGELOG-${TAG}.md to Discord..."
+            curl -s -X POST "$WEBHOOK_URL" \
+              -F "file=@CHANGELOG-${TAG}.md" || echo "Warning: Failed to upload changelog .md to Discord"
+          fi
+
+          # 3️⃣ Enviar cada archivo .jar (mod jar y api jar, excluyendo fuentes)
+          for FILE in $(find build/libs -name "*.jar" -not -name "*-sources.jar" 2>/dev/null); do
+            if [ -f "$FILE" ]; then
+              echo "Uploading $FILE to Discord..."
+              curl -s -X POST "$WEBHOOK_URL" \
+                -F "file=@${FILE}" || echo "Warning: Failed to upload $FILE to Discord"
+            fi
+          done
 
       - name: Publish to Modrinth
         run: |
-          FILE=$(ls build/libs/*.jar | grep -v "sources" | head -n1)
+          if [ -z "${MODRINTH_TOKEN:-}" ]; then
+            echo "⚠️ MODRINTH_TOKEN no está configurado. Omitiendo publicación en Modrinth."
+            exit 0
+          fi
+
+          FILE=$(ls build/libs/*.jar | grep -v "sources" | grep -v "\-api\.jar" | head -n1)
 
           # Verificar si la versión ya existe
           EXISTS=$(curl -s "https://api.modrinth.com/v2/project/$MOD_NAME/version" | \

@@ -1,6 +1,6 @@
 package com.kingpixel.ultranotify.command.base;
 
-import com.kingpixel.ultranotify.UltraNotify;
+import com.kingpixel.ultranotify.api.ui.NotifyMenuRegistry;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -13,7 +13,7 @@ public class CaughtCommand {
     base.then(
       CommandManager.literal("caught")
         .executes(context -> {
-          UltraNotify.lang.getCaughtGui().open(
+          NotifyMenuRegistry.openCaughtHistoryMenu(
             context.getSource().getPlayer(),
             1
           );

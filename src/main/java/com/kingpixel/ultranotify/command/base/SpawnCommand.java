@@ -1,6 +1,6 @@
 package com.kingpixel.ultranotify.command.base;
 
-import com.kingpixel.ultranotify.UltraNotify;
+import com.kingpixel.ultranotify.api.ui.NotifyMenuRegistry;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -13,7 +13,7 @@ public class SpawnCommand {
     base.then(
       CommandManager.literal("spawn")
         .executes(context -> {
-          UltraNotify.lang.getSpawnGui().open(
+          NotifyMenuRegistry.openSpawnHistoryMenu(
             context.getSource().getPlayer(),
             1
           );

@@ -3,6 +3,7 @@ package com.kingpixel.ultranotify.database;
 import com.kingpixel.ultranotify.UltraNotify;
 import com.kingpixel.ultranotify.models.history.HistorySpawn;
 import com.kingpixel.ultranotify.models.history.HistoryTrade;
+import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -29,7 +30,7 @@ public class MongoDBClient extends DataBaseClient {
   @Override public void connect() {
     var config = getConfig();
     var settigns = MongoClientSettings.builder()
-      .applyConnectionString(new com.mongodb.ConnectionString(config.getUrl()))
+      .applyConnectionString(new ConnectionString(config.getUrl()))
       .applicationName("CobbleNotify")
       .build();
     client = MongoClients.create(settigns);

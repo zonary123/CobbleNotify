@@ -185,7 +185,7 @@ public class JSONDBClient extends DataBaseClient {
     for (File f : Objects.requireNonNull(tradeFolder.listFiles())) {
       if (f.isDirectory()) continue; // skip "dictionary/"
       try {
-        JSONObject json = new JSONObject(com.kingpixel.cobbleutils.util.Utils.readFileSync(f));
+        JSONObject json = new JSONObject(Utils.readFileSync(f));
         list.add(HistoryTrade.fromDocument(Document.parse(json.toString())));
       } catch (IOException e) {
         throw new RuntimeException(e);

@@ -9,6 +9,7 @@ import com.kingpixel.cobbleutils.Model.ItemModel;
 import com.kingpixel.cobbleutils.Model.Rectangle;
 import com.kingpixel.cobbleutils.util.AdventureTranslator;
 import com.kingpixel.ultranotify.UltraNotify;
+import com.kingpixel.ultranotify.api.ui.NotifyMenuRegistry;
 import com.kingpixel.ultranotify.models.history.HistoryTrade;
 import lombok.Data;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -54,13 +55,13 @@ public class TradeGui {
       int totalSlots = rectangle.getTotalSlots();
       boolean hasNext = size > totalSlots;
       if (numPage > 1) {
-        previous.applyTemplate(template, previous.getButton(buttonAction -> open(player, numPage - 1)));
+        previous.applyTemplate(template, previous.getButton(buttonAction -> NotifyMenuRegistry.openTradeHistoryMenu(player, numPage - 1)));
       }
 
       close.applyTemplate(template, close.getButton(buttonAction -> UIManager.closeUI(player)));
 
       if (hasNext) {
-        next.applyTemplate(template, next.getButton(buttonAction -> open(player, numPage + 1)));
+        next.applyTemplate(template, next.getButton(buttonAction -> NotifyMenuRegistry.openTradeHistoryMenu(player, numPage + 1)));
       }
       if (size > totalSlots) trades.removeLast();
       for (HistoryTrade trade : trades) {

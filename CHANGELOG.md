@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.2.0] - 2026-11-20
+
+### Added
+
+- **Custom Menu Support for External UI Mods**: Companion mods and custom UI systems (like Rotom Phone, web panels, or custom GUI plugins) can now replace CobbleNotify's default chest menus with their own screens using the new `NotifyMenuProvider` SPI.
+- **Headless Actions & Player Preferences**: Companion mods can now trigger spawn, catch, defeat, and trade notifications, reload configurations, and toggle player alert preferences directly in code without opening a chest menu.
+- **Rich Notification Rules, History & Player ViewModels**: External mods can now easily inspect active notification rules, player alert preferences, and recent spawn, catch, and trade logs using clean, read-only data models.
+- **Dedicated Lightweight API JAR**: Published builds now automatically produce and distribute `UltraNotify-...-api.jar`, making it simple for addon developers to build integrations without packaging the whole mod.
+
+## [1.1.12] - 2026-10-18
+
+### Added
+
+- **Built-in Documentation (WIKI.md)**: Added a comprehensive wiki guide that extracts automatically into `config/ultranotify/` on server startup, documenting all notification events, Discord webhook setup, permissions, and player preferences GUI.
+
+### Changed
+
+- Updated CobbleUtils dependency to version 1.3.8.
+
 ## [1.1.11] - 2026-10-12
 
 ### Changed

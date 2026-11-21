@@ -1,6 +1,7 @@
 package com.kingpixel.ultranotify;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.kingpixel.cobbleutils.util.UtilsFile;
+import com.kingpixel.cobbleutils.util.async.AsyncContext;
 import com.kingpixel.ultranotify.command.CommandTree;
 import com.kingpixel.ultranotify.config.Config;
 import com.kingpixel.ultranotify.config.Lang;
@@ -8,16 +9,15 @@ import com.kingpixel.ultranotify.config.Notifications;
 import com.kingpixel.ultranotify.database.DataBaseClient;
 import com.kingpixel.ultranotify.database.DataBaseFactory;
 import com.kingpixel.ultranotify.events.Events;
-import com.kingpixel.cobbleutils.util.async.AsyncContext;
-import java.util.concurrent.TimeUnit;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.server.MinecraftServer;
 
+import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Carlos Varas Alonso - 28/04/2024 23:50
@@ -39,7 +39,6 @@ public class UltraNotify implements ModInitializer {
   private static final ExecutorService EXECUTOR_SERVICE = asyncContext.getExecutor();
 
   @Override public void onInitialize() {
-    
     events();
   }
 
@@ -48,12 +47,12 @@ public class UltraNotify implements ModInitializer {
   }
 
   private static void files() {
+    UtilsFile.extractWiki(UltraNotify.class, Path.of("config", MOD_ID));
     config.init();
     lang.init();
     Notifications.init();
     databaseClient = DataBaseFactory.createDataBaseClient(config.getDatabase());
   }
-
 
   private static void events() {
     files();
@@ -73,7 +72,7 @@ public class UltraNotify implements ModInitializer {
       return;
     }
     CompletableFuture.runAsync(task, EXECUTOR_SERVICE)
-      .orTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+      .orTimeout(30, TimeUnit.SECONDS)
       .exceptionally(ex -> {
         ex.printStackTrace();
         return null;

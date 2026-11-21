@@ -6,6 +6,7 @@ import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
 import com.kingpixel.cobbleutils.Model.ItemModel;
 import com.kingpixel.cobbleutils.util.AdventureTranslator;
 import com.kingpixel.ultranotify.UltraNotify;
+import com.kingpixel.ultranotify.api.ui.NotifyMenuRegistry;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 /**
@@ -36,15 +37,15 @@ public class GlobalGui {
         .build();
 
       spawnHistoryItem.applyTemplate(template, spawnHistoryItem.getButton(buttonAction -> {
-        UltraNotify.lang.getSpawnGui().open(player, 1);
+        NotifyMenuRegistry.openSpawnHistoryMenu(player, 1);
       }));
 
       caughtHistoryItem.applyTemplate(template, caughtHistoryItem.getButton(buttonAction -> {
-        UltraNotify.lang.getCaughtGui().open(player, 1);
+        NotifyMenuRegistry.openCaughtHistoryMenu(player, 1);
       }));
 
       tradeHistoryItem.applyTemplate(template, tradeHistoryItem.getButton(buttonAction -> {
-        UltraNotify.lang.getTradeGui().open(player, 1);
+        NotifyMenuRegistry.openTradeHistoryMenu(player, 1);
       }));
 
       GooeyPage page = GooeyPage.builder()
