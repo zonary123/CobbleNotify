@@ -13,6 +13,10 @@ public class CaughtCommand {
     base.then(
       CommandManager.literal("caught")
         .executes(context -> {
+          if (!context.getSource().isExecutedByPlayer()) {
+            context.getSource().sendError(net.minecraft.text.Text.literal("This command can only be executed by a player."));
+            return 0;
+          }
           NotifyMenuRegistry.openCaughtHistoryMenu(
             context.getSource().getPlayer(),
             1

@@ -33,11 +33,16 @@ public class CommandTree {
       .then(CommandManager.literal("reload")
         .requires(source -> LuckPermsUtil.checkPermission(source, 2, "ultranotify.admin"))
         .executes(context -> {
-          UltraNotify.load();
-          String reloadMsg = UltraNotify.lang.getMessageReload() != null
-            ? UltraNotify.lang.getMessageReload().replace("%prefix%", UltraNotify.lang.getPrefix())
-            : UltraNotify.lang.getPrefix();
-          context.getSource().sendMessage(AdventureTranslator.toNative(reloadMsg));
+          try {
+            UltraNotify.load();
+            String reloadMsg = UltraNotify.lang.getMessageReload() != null
+              ? UltraNotify.lang.getMessageReload().replace("%prefix%", UltraNotify.lang.getPrefix())
+              : UltraNotify.lang.getPrefix();
+            context.getSource().sendMessage(AdventureTranslator.toNative(reloadMsg));
+          } catch (Exception e) {
+            UltraNotify.LOGGER.error("Error executing /ultranotify reload: {}", e.getMessage(), e);
+            context.getSource().sendError(net.minecraft.text.Text.literal("Error reloading UltraNotify: " + e.getMessage()));
+          }
           return 1;
         })
       );

@@ -13,6 +13,10 @@ public class SpawnCommand {
     base.then(
       CommandManager.literal("spawn")
         .executes(context -> {
+          if (!context.getSource().isExecutedByPlayer()) {
+            context.getSource().sendError(net.minecraft.text.Text.literal("This command can only be executed by a player."));
+            return 0;
+          }
           NotifyMenuRegistry.openSpawnHistoryMenu(
             context.getSource().getPlayer(),
             1

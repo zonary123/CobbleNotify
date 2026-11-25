@@ -18,14 +18,16 @@ public class CatchEvent {
       try {
         Pokemon pokemon = evt.getPokemon();
         ServerPlayerEntity player = evt.getPlayer();
-        if (UltraNotify.config.getWorldFilter().isBlackListed(player.getServerWorld())) return;
+        if (pokemon == null || player == null) return;
+        if (player.getServerWorld() == null) return;
+        if (UltraNotify.config != null && UltraNotify.config.getWorldFilter().isBlackListed(player.getServerWorld())) return;
         if (pokemon.getLevel() > Cobblemon.INSTANCE.getConfig().getMaxPokemonLevel()) pokemon.setLevel(1);
         for (Notification notification : Notifications.NOTIFICATIONS) {
           if (notification.getWorldFilter().isBlackListed(player.getServerWorld())) continue;
           if (notification.computeCaught(pokemon, player)) return;
         }
       } catch (Exception e) {
-        e.printStackTrace();
+        UltraNotify.LOGGER.error("Error handling Pokemon capture event: {}", e.getMessage(), e);
       }
     });
   }

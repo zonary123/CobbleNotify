@@ -70,25 +70,41 @@ public class WebHookStruct {
   }
 
   public void sendMessage(String modifiedTitle, List<String> modifiedDescription, String modifiedFooter, Pokemon pokemon) {
-    var webHookData = UltraNotify.config.getWebHookData();
-    if (!webHookData.isENABLED()) return;
-    var client = webHookData.getWebhookClient();
-    String gif = getGif(pokemon);
-    String hexColor = color.startsWith("#") ? color : "#" + color;
-    String displayTitle = modifiedTitle != null ? modifiedTitle : title;
-    String displayFooter = modifiedFooter != null ? modifiedFooter : footer;
-    var message = new WebhookMessageBuilder()
-      .addEmbeds(
-        new WebhookEmbedBuilder()
-          .setTitle(new WebhookEmbed.EmbedTitle(displayTitle, titleUrl))
-          .setColor(Color.decode(hexColor).getRGB() & 0xFFFFFF)
-          .setThumbnailUrl(gif)
-          .setDescription(String.join("\n", modifiedDescription))
-          .setFooter(new WebhookEmbed.EmbedFooter(displayFooter, gif))
-          .build()
-      )
-      .build();
-    client.send(message);
+    try {
+      var webHookData = UltraNotify.config.getWebHookData();
+      if (webHookData == null || !webHookData.isENABLED()) return;
+      var client = webHookData.getWebhookClient();
+      if (client == null) {
+        UltraNotify.LOGGER.warn("Discord webhook is enabled, but webhook client is null. Please check webhook URL configuration.");
+        return;
+      }
+      String gif = getGif(pokemon);
+      int rgbColor;
+      try {
+        String hexColor = (color != null && !color.isBlank()) ? (color.startsWith("#") ? color : "#" + color) : "#25D293";
+        rgbColor = Color.decode(hexColor).getRGB() & 0xFFFFFF;
+      } catch (Exception e) {
+        rgbColor = 0x25D293;
+      }
+      String displayTitle = modifiedTitle != null ? modifiedTitle : (title != null ? title : "");
+      String displayFooter = modifiedFooter != null ? modifiedFooter : (footer != null ? footer : "");
+      List<String> descList = modifiedDescription != null ? modifiedDescription : (description != null ? description : List.of());
+
+      var message = new WebhookMessageBuilder()
+        .addEmbeds(
+          new WebhookEmbedBuilder()
+            .setTitle(new WebhookEmbed.EmbedTitle(displayTitle, titleUrl))
+            .setColor(rgbColor)
+            .setThumbnailUrl(gif)
+            .setDescription(String.join("\n", descList))
+            .setFooter(new WebhookEmbed.EmbedFooter(displayFooter, gif))
+            .build()
+        )
+        .build();
+      client.send(message);
+    } catch (Exception e) {
+      UltraNotify.LOGGER.error("Error building or sending webhook message: {}", e.getMessage(), e);
+    }
   }
 
   public void sendMessage(List<String> modifiedDescription, Pokemon pokemon) {
@@ -99,8 +115,7 @@ public class WebHookStruct {
     CompletableFuture.runAsync(runnable, WEBHOOK_EXECUTOR)
       .orTimeout(5, TimeUnit.SECONDS)
       .exceptionally(ex -> {
-        CobbleUtils.LOGGER.error(UltraNotify.MOD_ID, "Error executing webhook task: " + ex.getMessage());
-        ex.printStackTrace();
+        UltraNotify.LOGGER.error("Error executing webhook task: {}", ex.getMessage(), ex);
         return null;
       });
   }

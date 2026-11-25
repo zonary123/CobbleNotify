@@ -2,6 +2,8 @@ package com.kingpixel.ultranotify;
 
 import com.kingpixel.cobbleutils.util.UtilsFile;
 import com.kingpixel.cobbleutils.util.async.AsyncContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.kingpixel.ultranotify.command.CommandTree;
 import com.kingpixel.ultranotify.config.Config;
 import com.kingpixel.ultranotify.config.Lang;
@@ -25,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class UltraNotify implements ModInitializer {
   public static final String MOD_ID = "ultranotify";
   public static final String MOD_NAME = "UltraNotify";
+  public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
   public static final String PATH = "/config/ultranotify/";
   public static MinecraftServer server;
   public static Lang lang = new Lang();
@@ -43,7 +46,11 @@ public class UltraNotify implements ModInitializer {
   }
 
   public static void load() {
-    files();
+    try {
+      files();
+    } catch (Exception e) {
+      LOGGER.error("Error loading UltraNotify configurations: {}", e.getMessage(), e);
+    }
   }
 
   private static void files() {
@@ -74,7 +81,7 @@ public class UltraNotify implements ModInitializer {
     CompletableFuture.runAsync(task, EXECUTOR_SERVICE)
       .orTimeout(30, TimeUnit.SECONDS)
       .exceptionally(ex -> {
-        ex.printStackTrace();
+        LOGGER.error("Async execution error in UltraNotify: {}", ex.getMessage(), ex);
         return null;
       });
   }

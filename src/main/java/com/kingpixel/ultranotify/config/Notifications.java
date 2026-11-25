@@ -28,7 +28,7 @@ public class Notifications {
     NOTIFICATIONS.clear();
     File folder = Utils.getAbsolutePath(PATH);
     if (!folder.exists() && !folder.mkdirs()) {
-      CobbleUtils.LOGGER.error(UltraNotify.MOD_ID, "Failed to create notifications folder: " + folder.getAbsolutePath());
+      UltraNotify.LOGGER.error("Failed to create notifications folder: {}", folder.getAbsolutePath());
       return;
     }
 
@@ -38,20 +38,20 @@ public class Notifications {
       .toList();
 
     if (!files.isEmpty()) {
-      CobbleUtils.LOGGER.info(UltraNotify.MOD_ID, "Loading " + files.size() + " notification files... File path: " + folder.getAbsolutePath());
+      UltraNotify.LOGGER.info("Loading {} notification files from: {}", files.size(), folder.getAbsolutePath());
       for (File f : files) {
         try {
           var notification = GSON.fromJson(Utils.readFileSync(f), Notification.class);
           if (notification == null) {
             notification = new Notification(f.getName().replace(".json", ""));
-            CobbleUtils.LOGGER.warn(UltraNotify.MOD_ID, "Notification file returned null. Regenerating defaults for: " + f.getName());
+            UltraNotify.LOGGER.warn("Notification file returned null. Regenerating defaults for: {}", f.getName());
           }
 
           notification.check();
           addOrReplaceNotification(notification);
           Utils.writeFileAsync(f, GSON.toJson(notification));
         } catch (Exception e) {
-          CobbleUtils.LOGGER.error(UltraNotify.MOD_ID, "Error loading notification file " + f.getName() + ": " + e.getMessage());
+          UltraNotify.LOGGER.error("Error loading notification file {}: {}", f.getName(), e.getMessage(), e);
         }
       }
     } else {
@@ -137,7 +137,7 @@ public class Notifications {
     notification.check();
     addOrReplaceNotification(notification);
     var file = Utils.getAbsolutePath(PATH + fileName);
-    CobbleUtils.LOGGER.info(UltraNotify.MOD_ID, "Creating default notification file at " + file);
+    UltraNotify.LOGGER.info("Creating default notification file at {}", file);
     Utils.writeFileAsync(file, GSON.toJson(notification));
   }
 }

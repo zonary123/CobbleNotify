@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.1] - 2026-11-25
+
+### Changed
+
+- **Improved Console Diagnostics**: Upgraded server logging with clearer, structured error messages for server administrators to easily troubleshoot configuration, language file, or database issues.
+
+### Fixed
+
+- **Raid & Battle Stability**: Fixed an issue where raid battles or indirect fainting causes (such as poison, burn, or weather) could spam errors to the server console.
+- **Trade & Capture Reliability**: Fixed potential server errors during Pokémon trades (including NPC trades) and capture events.
+- **History & Database Storage**: Fixed errors when browsing or loading spawn and trade history menus when data folders were empty or freshly created.
+- **Discord Webhook Resilience**: Improved Discord webhook handling to gracefully handle invalid color codes or missing URLs without impacting server performance.
+
 ## [1.2.0] - 2026-11-20
 
 ### Added

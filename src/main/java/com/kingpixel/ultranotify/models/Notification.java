@@ -114,10 +114,11 @@ public class Notification {
       var messages = notificationOptions.getNotificationMessages();
       var message = messages.getCatchMessage();
       var content = message.getRawMessage();
+      String playerName = player != null ? player.getGameProfile().getName() : "Unknown";
       content = replaceVariables(
           pokemon.getEntity(), pokemon, PokemonUtils.replace(
               content
-                  .replace("%player%", player.getGameProfile().getName()),
+                  .replace("%player%", playerName),
               pokemon));
       message.sendMessage((UUID) null, content, UltraNotify.lang.getPrefix(), false);
       notified = true;
@@ -148,9 +149,10 @@ public class Notification {
       var messages = notificationOptions.getNotificationMessages();
       var message = messages.getDefeatMessage();
       var content = message.getRawMessage();
+      String playerName = player != null ? player.getGameProfile().getName() : "Unknown";
       PokemonEntity entityToUse = entity != null ? entity : pokemon.getEntity();
       content = replaceVariables(entityToUse, pokemon, PokemonUtils.replace(content, pokemon))
-          .replace("%player%", player.getGameProfile().getName());
+          .replace("%player%", playerName);
       message.sendMessage((UUID) null, content, UltraNotify.lang.getPrefix(), false);
       notified = true;
     }
@@ -266,8 +268,10 @@ public class Notification {
       var message = messages.getTradeMessage();
       var content = message.getRawMessage();
       content = PokemonUtils.replace(content, List.of(pokemon1, pokemon2));
-      content = content.replace("%player1%", player1.getGameProfile().getName());
-      content = content.replace("%player2%", player2.getGameProfile().getName());
+      String name1 = player1 != null ? player1.getGameProfile().getName() : "Unknown";
+      String name2 = player2 != null ? player2.getGameProfile().getName() : "Unknown";
+      content = content.replace("%player1%", name1);
+      content = content.replace("%player2%", name2);
       message.sendMessage((UUID) null, content, UltraNotify.lang.getPrefix(), false);
       notified = true;
     }
@@ -284,6 +288,7 @@ public class Notification {
   }
 
   public static String replaceVariables(PokemonEntity pokemonEntity, Pokemon pokemon, String message) {
+    if (message == null || pokemon == null) return message;
     if (pokemonEntity != null) {
       var x = (int) pokemonEntity.getX();
       var y = (int) pokemonEntity.getY();
@@ -294,22 +299,35 @@ public class Notification {
       message = message.replace("%z%", String.valueOf(z));
       message = message.replace("%world%", MinecraftUtils.getWorldTranslate(world));
 
-      var biome = world.getBiome(pokemonEntity.getBlockPos());
-      String biomeId = biome.getIdAsString();
-      message = message.replace("%biome%", CobbleUtils.language.getBiomes().getOrDefault(biomeId, biomeId));
+      if (world != null) {
+        var biome = world.getBiome(pokemonEntity.getBlockPos());
+        String biomeId = biome != null ? biome.getIdAsString() : "";
+        String biomeTranslated = (CobbleUtils.language != null && CobbleUtils.language.getBiomes() != null)
+            ? CobbleUtils.language.getBiomes().getOrDefault(biomeId, biomeId)
+            : biomeId;
+        message = message.replace("%biome%", biomeTranslated != null ? biomeTranslated : "");
+      }
     }
 
-    message = message.replace("%server%", CobbleUtils.config.getServer());
+    String serverName = (CobbleUtils.config != null && CobbleUtils.config.getServer() != null)
+        ? CobbleUtils.config.getServer()
+        : "";
+    message = message.replace("%server%", serverName);
 
     // Pokemon variables
     Nature nature = pokemon.getNature();
+    String natureDisplay = nature != null ? nature.getDisplayName() : "Unknown";
+    String upStat = (nature != null && nature.getIncreasedStat() != null) ? nature.getIncreasedStat().getShowdownId() : "";
+    String downStat = (nature != null && nature.getDecreasedStat() != null) ? nature.getDecreasedStat().getShowdownId() : "";
+    String abilityName = pokemon.getAbility() != null ? pokemon.getAbility().getName() : "None";
+
     message = message
         .replace("%pokemon%", pokemon.showdownId())
         .replace("%types%", getTypes(pokemon))
-        .replace("%ability%", pokemon.getAbility().getName())
-        .replace("%up%", nature.getIncreasedStat() == null ? "" : nature.getIncreasedStat().getShowdownId())
-        .replace("%down%", nature.getDecreasedStat() == null ? "" : nature.getDecreasedStat().getShowdownId())
-        .replace("%nature%", pokemon.getNature().getDisplayName())
+        .replace("%ability%", abilityName)
+        .replace("%up%", upStat)
+        .replace("%down%", downStat)
+        .replace("%nature%", natureDisplay)
         .replace("%move1%", getMove(0, pokemon))
         .replace("%move2%", getMove(1, pokemon))
         .replace("%move3%", getMove(2, pokemon))
@@ -318,11 +336,17 @@ public class Notification {
   }
 
   private static String getTypes(Pokemon pokemon) {
+    if (pokemon == null || pokemon.getForm() == null || pokemon.getForm().getTypes() == null) {
+      return "Unknown";
+    }
     Iterable<ElementalType> types = pokemon.getForm().getTypes();
     Iterator<ElementalType> iterator = types.iterator();
     StringBuilder typesString = new StringBuilder();
     while (iterator.hasNext()) {
-      typesString.append(iterator.next().getName());
+      ElementalType type = iterator.next();
+      if (type != null) {
+        typesString.append(type.getName());
+      }
       if (iterator.hasNext()) {
         typesString.append(" / ");
       }

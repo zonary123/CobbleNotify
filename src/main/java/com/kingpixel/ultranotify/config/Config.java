@@ -38,10 +38,12 @@ public class Config {
     var futureRead = Utils.readFileAsync(UltraNotify.PATH, "config.json", data -> {
       try {
         var config = Utils.newGson().fromJson(data, Config.class);
-        config.check();
-        UltraNotify.config = config;
+        if (config != null) {
+          config.check();
+          UltraNotify.config = config;
+        }
       } catch (Exception e) {
-        e.printStackTrace();
+        UltraNotify.LOGGER.error("Error reading config.json at {}: {}", UltraNotify.PATH, e.getMessage(), e);
       }
     });
     futureRead.join();

@@ -20,21 +20,33 @@ public class TradeEvent {
       try {
         Pokemon pokemon1 = evt.getTradeParticipant1Pokemon();
         Pokemon pokemon2 = evt.getTradeParticipant2Pokemon();
-        ServerPlayerEntity player1 = getPlayerByUUID(evt.getTradeParticipant1().getUuid());
-        ServerPlayerEntity player2 = getPlayerByUUID(evt.getTradeParticipant2().getUuid());
+        if (pokemon1 == null || pokemon2 == null) return;
+
+        var participant1 = evt.getTradeParticipant1();
+        var participant2 = evt.getTradeParticipant2();
+        if (participant1 == null || participant2 == null) return;
+
+        ServerPlayerEntity player1 = getPlayerByUUID(participant1.getUuid());
+        ServerPlayerEntity player2 = getPlayerByUUID(participant2.getUuid());
+        if (player1 == null || player2 == null) return;
+
         ServerWorld world = player1.getServerWorld();
-        if (UltraNotify.config.getWorldFilter().isBlackListed(world)) return;
+        if (world == null) return;
+        if (UltraNotify.config != null && UltraNotify.config.getWorldFilter().isBlackListed(world)) return;
+
         for (Notification notification : Notifications.NOTIFICATIONS) {
           if (notification.getWorldFilter().isBlackListed(world)) continue;
           if (notification.computeTrade(pokemon1, pokemon2, player1, player2)) return;
         }
       } catch (Exception e) {
-        e.printStackTrace();
+        UltraNotify.LOGGER.error("Error handling Pokemon trade event: {}", e.getMessage(), e);
       }
     });
   }
 
   private static ServerPlayerEntity getPlayerByUUID(UUID uuid) {
-    return UltraNotify.server.getPlayerManager().getPlayer(uuid);
+    if (uuid == null || UltraNotify.server == null) return null;
+    var playerManager = UltraNotify.server.getPlayerManager();
+    return playerManager != null ? playerManager.getPlayer(uuid) : null;
   }
 }

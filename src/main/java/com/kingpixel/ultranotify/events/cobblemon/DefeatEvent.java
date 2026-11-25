@@ -24,34 +24,43 @@ public class DefeatEvent {
   private static void handleBattleFainted(BattleFaintedEvent evt) {
     try {
       var battle = evt.getBattle();
-      if (!battle.isPvW()) return;
+      if (battle == null || !battle.isPvW()) return;
 
-      var killedActor = evt.getKilled().getActor();
+      var killedBattlePokemon = evt.getKilled();
+      if (killedBattlePokemon == null) return;
+
+      var killedActor = killedBattlePokemon.getActor();
       if (killedActor == null || killedActor.getType() != ActorType.WILD) return;
 
       ServerPlayerEntity killer = getKiller(evt);
       if (killer == null) return;
       if (UltraNotify.config.getWorldFilter().isBlackListed(killer.getServerWorld())) return;
 
-      var killed = evt.getKilled().getOriginalPokemon();
-      var entity = evt.getKilled().getEntity();
+      var killed = killedBattlePokemon.getOriginalPokemon();
+      if (killed == null) return;
+      var entity = killedBattlePokemon.getEntity();
 
       for (Notification notification : Notifications.NOTIFICATIONS) {
         if (notification.getWorldFilter().isBlackListed(killer.getServerWorld())) continue;
         if (notification.computeDefeat(killed, killer, entity)) return;
       }
     } catch (Exception e) {
-      CobbleUtils.LOGGER.error(UltraNotify.MOD_ID, "Error handling battle fainted event: " + e.getMessage());
+      UltraNotify.LOGGER.error("Error handling battle fainted event: {}", e.getMessage(), e);
     }
   }
 
   private static ServerPlayerEntity getKiller(BattleFaintedEvent evt) {
-    var originActor = evt.getContext().getOrigin().getActor();
-    if (originActor instanceof PlayerBattleActor playerActor) {
-      return playerActor.getEntity();
+    var context = evt.getContext();
+    if (context != null && context.getOrigin() != null) {
+      var originActor = context.getOrigin().getActor();
+      if (originActor instanceof PlayerBattleActor playerActor) {
+        return playerActor.getEntity();
+      }
     }
-    var players = evt.getBattle().getPlayers();
-    return players.isEmpty() ? null : players.getFirst();
+    var battle = evt.getBattle();
+    if (battle == null) return null;
+    var players = battle.getPlayers();
+    return (players == null || players.isEmpty()) ? null : players.getFirst();
   }
 }
 

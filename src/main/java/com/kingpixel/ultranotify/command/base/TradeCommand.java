@@ -13,6 +13,10 @@ public class TradeCommand {
     base.then(
       CommandManager.literal("trade")
         .executes(context -> {
+          if (!context.getSource().isExecutedByPlayer()) {
+            context.getSource().sendError(net.minecraft.text.Text.literal("This command can only be executed by a player."));
+            return 0;
+          }
           NotifyMenuRegistry.openTradeHistoryMenu(
             context.getSource().getPlayer(),
             1

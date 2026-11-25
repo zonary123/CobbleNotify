@@ -54,7 +54,7 @@ public class Lang {
             UltraNotify.lang = lang;
           }
         } catch (Exception e) {
-          e.printStackTrace();
+          UltraNotify.LOGGER.error("Error reading language file {}.json: {}", UltraNotify.config.getLang(), e.getMessage(), e);
         }
       });
 

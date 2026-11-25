@@ -3,6 +3,7 @@ package com.kingpixel.ultranotify.models.webhook;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
+import com.kingpixel.ultranotify.UltraNotify;
 import com.kingpixel.ultranotify.models.Notification;
 import com.kingpixel.ultranotify.models.enums.Actions;
 import lombok.Data;
@@ -35,26 +36,32 @@ public class WebHookOptions {
   }
 
   public boolean sendMessage(Actions action, List<Pokemon> pokemons, @Nullable ServerPlayerEntity player, @Nullable PokemonEntity pokemonEntity) {
+    if (pokemons == null || pokemons.isEmpty()) return false;
     boolean active = isActive(action);
     if (active) {
       WebHookStruct.runAsync(() -> {
-        WebHookStruct message = getMessage(action);
-        Pokemon pokemon = pokemons.getFirst();
-        String playerName = player != null ? player.getGameProfile().getName() : "Unknown";
+        try {
+          WebHookStruct message = getMessage(action);
+          if (message == null) return;
+          Pokemon pokemon = pokemons.getFirst();
+          String playerName = player != null ? player.getGameProfile().getName() : "Unknown";
 
-        List<String> description = new ArrayList<>(message.getDescription());
-        String descriptionJoined = String.join("\n", description);
-        descriptionJoined = formatPlaceholders(descriptionJoined, playerName, pokemonEntity, pokemon, pokemons);
+          List<String> description = message.getDescription() != null ? new ArrayList<>(message.getDescription()) : new ArrayList<>();
+          String descriptionJoined = String.join("\n", description);
+          descriptionJoined = formatPlaceholders(descriptionJoined, playerName, pokemonEntity, pokemon, pokemons);
 
-        String formattedTitle = formatPlaceholders(message.getTitle(), playerName, pokemonEntity, pokemon, pokemons);
-        String formattedFooter = formatPlaceholders(message.getFooter(), playerName, pokemonEntity, pokemon, pokemons);
+          String formattedTitle = formatPlaceholders(message.getTitle(), playerName, pokemonEntity, pokemon, pokemons);
+          String formattedFooter = formatPlaceholders(message.getFooter(), playerName, pokemonEntity, pokemon, pokemons);
 
-        message.sendMessage(
-            replace(formattedTitle),
-            List.of(replace(descriptionJoined)),
-            replace(formattedFooter),
-            pokemon
-        );
+          message.sendMessage(
+              replace(formattedTitle),
+              List.of(replace(descriptionJoined)),
+              replace(formattedFooter),
+              pokemon
+          );
+        } catch (Exception e) {
+          UltraNotify.LOGGER.error("Error dispatching webhook notification for action {}: {}", action, e.getMessage(), e);
+        }
       });
     }
     return active;

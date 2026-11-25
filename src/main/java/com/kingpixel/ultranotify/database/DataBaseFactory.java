@@ -8,6 +8,7 @@ import com.kingpixel.ultranotify.UltraNotify;
  */
 public class DataBaseFactory {
   public static DataBaseClient createDataBaseClient(DataBaseConfig config) {
+    if (config == null || config.getType() == null) return null;
     try {
       DataBaseClient client = UltraNotify.databaseClient;
       if (client != null) client.disconnect();
@@ -19,7 +20,7 @@ public class DataBaseFactory {
       if (client != null) client.connect();
       return client;
     } catch (Exception e) {
-      e.printStackTrace();
+      UltraNotify.LOGGER.error("Failed to initialize database client (type: {}): {}", config.getType(), e.getMessage(), e);
       return null;
     }
   }

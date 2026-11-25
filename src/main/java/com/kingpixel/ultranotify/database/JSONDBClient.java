@@ -72,15 +72,18 @@ public class JSONDBClient extends DataBaseClient {
 
   @Override
   public HistorySpawn getSpawnedPokemonById(UUID uuid) {
-    // Search inside all player folders
-    for (File playerFolder : Objects.requireNonNull(spawnFolder.listFiles())) {
+    if (uuid == null || spawnFolder == null) return null;
+    File[] playerFolders = spawnFolder.listFiles();
+    if (playerFolders == null) return null;
+    for (File playerFolder : playerFolders) {
+      if (playerFolder == null || !playerFolder.isDirectory()) continue;
       File f = new File(playerFolder, uuid.toString() + ".json");
       if (f.exists()) {
         try {
           JSONObject json = new JSONObject(Utils.readFileSync(f));
           return HistorySpawn.fromDocument(Document.parse(json.toString()));
-        } catch (IOException e) {
-          throw new RuntimeException(e);
+        } catch (Exception e) {
+          UltraNotify.LOGGER.error("Failed to read spawn history file {}: {}", f.getAbsolutePath(), e.getMessage());
         }
       }
     }
@@ -91,15 +94,23 @@ public class JSONDBClient extends DataBaseClient {
   public List<HistorySpawn> getSpawnedPokemons(int page) {
     int limit = 50;
     List<HistorySpawn> result = new ArrayList<>();
+    if (spawnFolder == null) return List.of();
     var list = spawnFolder.listFiles();
     if (list == null) return List.of();
     for (File player : list) {
-      for (File f : Objects.requireNonNull(player.listFiles())) {
+      if (player == null || !player.isDirectory()) continue;
+      File[] files = player.listFiles();
+      if (files == null) continue;
+      for (File f : files) {
+        if (f == null || !f.isFile() || !f.getName().endsWith(".json")) continue;
         try {
           JSONObject json = new JSONObject(Utils.readFileSync(f));
-          result.add(Utils.newWithoutSpacingGson().fromJson(json.toString(), HistorySpawn.class));
-        } catch (IOException e) {
-          throw new RuntimeException(e);
+          HistorySpawn history = Utils.newWithoutSpacingGson().fromJson(json.toString(), HistorySpawn.class);
+          if (history != null) {
+            result.add(history);
+          }
+        } catch (Exception e) {
+          UltraNotify.LOGGER.error("Failed to parse spawn history file {}: {}", f.getAbsolutePath(), e.getMessage());
         }
       }
     }
@@ -172,7 +183,7 @@ public class JSONDBClient extends DataBaseClient {
       Utils.writeFileSync(file, json.toString(2));
 
     } catch (Exception e) {
-      throw new RuntimeException("Failed to update trade dictionary for player " + player, e);
+      UltraNotify.LOGGER.error("Failed to update trade dictionary for player {}: {}", player, e.getMessage(), e);
     }
   }
 
@@ -181,14 +192,20 @@ public class JSONDBClient extends DataBaseClient {
   public List<HistoryTrade> getTradesHistory(int page) {
     int limit = 50;
     List<HistoryTrade> list = new ArrayList<>();
+    if (tradeFolder == null) return List.of();
+    File[] tradeFiles = tradeFolder.listFiles();
+    if (tradeFiles == null) return List.of();
 
-    for (File f : Objects.requireNonNull(tradeFolder.listFiles())) {
-      if (f.isDirectory()) continue; // skip "dictionary/"
+    for (File f : tradeFiles) {
+      if (f == null || f.isDirectory() || !f.getName().endsWith(".json")) continue; // skip "dictionary/"
       try {
         JSONObject json = new JSONObject(Utils.readFileSync(f));
-        list.add(HistoryTrade.fromDocument(Document.parse(json.toString())));
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+        HistoryTrade trade = HistoryTrade.fromDocument(Document.parse(json.toString()));
+        if (trade != null) {
+          list.add(trade);
+        }
+      } catch (Exception e) {
+        UltraNotify.LOGGER.error("Failed to parse trade history file {}: {}", f.getAbsolutePath(), e.getMessage());
       }
     }
 

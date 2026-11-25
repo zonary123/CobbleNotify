@@ -42,38 +42,50 @@ public class CaughtGui {
   }
 
   public void open(ServerPlayerEntity player, int numPage) {
+    if (player == null) return;
     UltraNotify.runAsync(() -> {
-      ChestTemplate template = ChestTemplate
-        .builder(rows)
-        .build();
+      try {
+        if (UltraNotify.databaseClient == null) {
+          UltraNotify.LOGGER.warn("Cannot open caught history GUI: database client is not initialized.");
+          return;
+        }
+        ChestTemplate template = ChestTemplate
+          .builder(rows)
+          .build();
 
-      rectangle.apply(template);
-      List<Button> buttons = new ArrayList<>();
-      List<HistorySpawn> spawns = new ArrayList<>(UltraNotify.databaseClient.getCaughtPokemons(numPage));
+        rectangle.apply(template);
+        List<Button> buttons = new ArrayList<>();
+        List<HistorySpawn> fetched = UltraNotify.databaseClient.getCaughtPokemons(numPage);
+        List<HistorySpawn> spawns = fetched != null ? new ArrayList<>(fetched) : new ArrayList<>();
 
-      int size = spawns.size();
-      int totalSlots = rectangle.getTotalSlots();
-      boolean hasNext = size > totalSlots;
-      if (numPage > 1) {
-        previous.applyTemplate(template, previous.getButton(buttonAction -> NotifyMenuRegistry.openCaughtHistoryMenu(player, numPage - 1)));
+        int size = spawns.size();
+        int totalSlots = rectangle.getTotalSlots();
+        boolean hasNext = size > totalSlots;
+        if (numPage > 1) {
+          previous.applyTemplate(template, previous.getButton(buttonAction -> NotifyMenuRegistry.openCaughtHistoryMenu(player, numPage - 1)));
+        }
+
+        close.applyTemplate(template, close.getButton(buttonAction -> UIManager.closeUI(player)));
+
+        if (hasNext) {
+          next.applyTemplate(template, next.getButton(buttonAction -> NotifyMenuRegistry.openCaughtHistoryMenu(player, numPage + 1)));
+        }
+        if (size > totalSlots) spawns.removeLast();
+        for (HistorySpawn spawn : spawns) {
+          if (spawn != null) buttons.add(spawn.toButton());
+        }
+
+        var builder = LinkedPage.builder()
+          .template(template)
+          .title(AdventureTranslator.toNative(title));
+        LinkedPage page = PaginationHelper.createPagesFromPlaceholders(template, buttons, builder);
+
+        if (UltraNotify.server != null) {
+          UltraNotify.server.execute(() -> UIManager.openUIForcefully(player, page));
+        }
+      } catch (Exception e) {
+        UltraNotify.LOGGER.error("Error opening caught history GUI for player {}: {}", player.getGameProfile().getName(), e.getMessage(), e);
       }
-
-      close.applyTemplate(template, close.getButton(buttonAction -> UIManager.closeUI(player)));
-
-      if (hasNext) {
-        next.applyTemplate(template, next.getButton(buttonAction -> NotifyMenuRegistry.openCaughtHistoryMenu(player, numPage + 1)));
-      }
-      if (size > totalSlots) spawns.removeLast();
-      for (HistorySpawn spawn : spawns) {
-        buttons.add(spawn.toButton());
-      }
-
-      var builder = LinkedPage.builder()
-        .template(template)
-        .title(AdventureTranslator.toNative(title));
-      LinkedPage page = PaginationHelper.createPagesFromPlaceholders(template, buttons, builder);
-
-      UltraNotify.server.execute(() -> UIManager.openUIForcefully(player, page));
     });
   }
 }

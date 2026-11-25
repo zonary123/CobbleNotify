@@ -42,38 +42,50 @@ public class TradeGui {
   }
 
   public void open(ServerPlayerEntity player, int numPage) {
+    if (player == null) return;
     UltraNotify.runAsync(() -> {
-      ChestTemplate template = ChestTemplate
-        .builder(rows)
-        .build();
+      try {
+        if (UltraNotify.databaseClient == null) {
+          UltraNotify.LOGGER.warn("Cannot open trade history GUI: database client is not initialized.");
+          return;
+        }
+        ChestTemplate template = ChestTemplate
+          .builder(rows)
+          .build();
 
-      rectangle.apply(template);
-      List<Button> buttons = new ArrayList<>();
-      List<HistoryTrade> trades = new ArrayList<>(UltraNotify.databaseClient.getTradesHistory(numPage));
+        rectangle.apply(template);
+        List<Button> buttons = new ArrayList<>();
+        List<HistoryTrade> fetched = UltraNotify.databaseClient.getTradesHistory(numPage);
+        List<HistoryTrade> trades = fetched != null ? new ArrayList<>(fetched) : new ArrayList<>();
 
-      int size = trades.size();
-      int totalSlots = rectangle.getTotalSlots();
-      boolean hasNext = size > totalSlots;
-      if (numPage > 1) {
-        previous.applyTemplate(template, previous.getButton(buttonAction -> NotifyMenuRegistry.openTradeHistoryMenu(player, numPage - 1)));
+        int size = trades.size();
+        int totalSlots = rectangle.getTotalSlots();
+        boolean hasNext = size > totalSlots;
+        if (numPage > 1) {
+          previous.applyTemplate(template, previous.getButton(buttonAction -> NotifyMenuRegistry.openTradeHistoryMenu(player, numPage - 1)));
+        }
+
+        close.applyTemplate(template, close.getButton(buttonAction -> UIManager.closeUI(player)));
+
+        if (hasNext) {
+          next.applyTemplate(template, next.getButton(buttonAction -> NotifyMenuRegistry.openTradeHistoryMenu(player, numPage + 1)));
+        }
+        if (size > totalSlots) trades.removeLast();
+        for (HistoryTrade trade : trades) {
+          if (trade != null) buttons.add(trade.toButton());
+        }
+
+        var builder = LinkedPage.builder()
+          .template(template)
+          .title(AdventureTranslator.toNative(title));
+        LinkedPage page = PaginationHelper.createPagesFromPlaceholders(template, buttons, builder);
+
+        if (UltraNotify.server != null) {
+          UltraNotify.server.execute(() -> UIManager.openUIForcefully(player, page));
+        }
+      } catch (Exception e) {
+        UltraNotify.LOGGER.error("Error opening trade history GUI for player {}: {}", player.getGameProfile().getName(), e.getMessage(), e);
       }
-
-      close.applyTemplate(template, close.getButton(buttonAction -> UIManager.closeUI(player)));
-
-      if (hasNext) {
-        next.applyTemplate(template, next.getButton(buttonAction -> NotifyMenuRegistry.openTradeHistoryMenu(player, numPage + 1)));
-      }
-      if (size > totalSlots) trades.removeLast();
-      for (HistoryTrade trade : trades) {
-        buttons.add(trade.toButton());
-      }
-
-      var builder = LinkedPage.builder()
-        .template(template)
-        .title(AdventureTranslator.toNative(title));
-      LinkedPage page = PaginationHelper.createPagesFromPlaceholders(template, buttons, builder);
-
-      UltraNotify.server.execute(() -> UIManager.openUIForcefully(player, page));
     });
   }
 }
